@@ -10,5 +10,4 @@ public interface LocalizableResource {
 	public String getLocalizedValue(Locale locale);
 	public void setLocalizedValue(Locale locale, String str);
 	public Collection<Locale> getAvailableLocales();
-
 }

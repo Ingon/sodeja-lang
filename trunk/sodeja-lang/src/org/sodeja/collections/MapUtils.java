@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.sodeja.functional.Function1;
 import org.sodeja.functional.Function2;
 
 public class MapUtils {
@@ -17,6 +18,30 @@ public class MapUtils {
 			result.add(functor.execute(entry.getKey(), entry.getValue()));
 		}
 		return result;
+	}
+	
+	public static <T, R> R getWithCreate(Map<T, R> source, T key, Function1<R, T> functor) {
+		R value = source.get(key);
+		if(value == null) {
+			value = functor.execute(key);
+			source.put(key, value);
+		}
+		return value;
+	}
+	
+	public static <P, R> R getWithUpdate(Map<P, R> source, P key, Function1<R, P> initFunctor, 
+			Function2<R, P, R> updateFunctor) {
+		
+		R value = source.get(key);
+		if(value == null) {
+			value = initFunctor.execute(key);
+			source.put(key, value);
+			return value;
+		}
+		
+		value = updateFunctor.execute(key, value);
+		source.put(key, value);
+		return value;
 	}
 	
 	@SuppressWarnings("unchecked")
