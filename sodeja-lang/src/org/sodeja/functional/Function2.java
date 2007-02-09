@@ -1,13 +1,7 @@
 package org.sodeja.functional;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import org.sodeja.collections.ArrayUtils;
 
 public interface Function2<R, P1, P2> {
     public R execute(P1 p1, P2 p2);
