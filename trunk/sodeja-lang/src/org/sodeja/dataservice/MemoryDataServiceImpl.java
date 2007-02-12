@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.sodeja.collections.ListUtils;
+import org.sodeja.functional.Predicate1;
+
 public class MemoryDataServiceImpl<T> implements DataService<T> {
 
 	private List<T> data;
@@ -34,8 +37,8 @@ public class MemoryDataServiceImpl<T> implements DataService<T> {
 		}
 	}
 
-	public List<T> find() {
-		throw new UnsupportedOperationException();
+	public List<T> find(Predicate1<T> filter) {
+		return ListUtils.filter(data, filter);
 	}
 
 	public List<T> findAll() {
