@@ -22,7 +22,7 @@ public interface Resource {
 				try {
 					in.close();
 				} catch (IOException ex) {
-					// consume
+					// consume1
 				}
 			}
 		}
@@ -32,7 +32,7 @@ public interface Resource {
 				try {
 					out.close();
 				} catch (IOException ex) {
-					// consume
+					// consume1
 				}
 			}
 		}
