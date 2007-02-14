@@ -13,13 +13,13 @@ public final class ReflectUtils {
     public static final Object[] EMPTY_PARAMETERS = new Object[0];
     
     public static Object getUsingMethod(Object obj, String fieldName) {
-        String methodName = "get" + StringUtils.capitalizeFirst(fieldName);
+        String methodName = "get" + StringUtils.capitalizeFirst(fieldName); //$NON-NLS-1$
         Method method = findMethodInHierarchy(obj, methodName, EMPTY_TYPES);
         return executeMethod(obj, method, EMPTY_PARAMETERS);
     }
     
     public static Object setUsingMethod(Object obj, String fieldName, Object newValue) {
-        String methodName = "set" + StringUtils.capitalizeFirst(fieldName);
+        String methodName = "set" + StringUtils.capitalizeFirst(fieldName); //$NON-NLS-1$
         Method method = findMethodInHierarchy(obj, methodName, new Class[] {newValue.getClass()});
         return executeMethod(obj, method, new Object[] {newValue});
     }
@@ -53,7 +53,7 @@ public final class ReflectUtils {
 		}
 
 		throw new ReflectUtilsException(
-				"Was unable to find required field");
+				"Was unable to find required field"); //$NON-NLS-1$
 	}
 
 	public static Object getFieldValue(Object obj, Field fld) {
@@ -64,7 +64,7 @@ public final class ReflectUtils {
 		try {
 			return fld.get(obj);
 		} catch (Exception e) {
-			throw new ReflectUtilsException("Unable to get field " + fld.getName() + " value", e);
+			throw new ReflectUtilsException("Unable to get field " + fld.getName() + " value", e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -76,7 +76,7 @@ public final class ReflectUtils {
 		try {
 			fld.set(obj, value);
 		} catch (Exception e) {
-			throw new ReflectUtilsException("Unable to set field " + fld.getName() + " value", e);
+			throw new ReflectUtilsException("Unable to set field " + fld.getName() + " value", e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 	
@@ -103,7 +103,7 @@ public final class ReflectUtils {
 		}
 
 		throw new ReflectUtilsException(
-				"Was unable to find required method");
+				"Was unable to find required method"); //$NON-NLS-1$
 	}
 	
 	public static Method findLocalMethod(Class clazz, String methodName, Class... types) {
@@ -118,7 +118,7 @@ public final class ReflectUtils {
 		}
 		
 		throw new ReflectUtilsException(
-			"Was unable to find required method");
+			"Was unable to find required method"); //$NON-NLS-1$
 	}
 	
 	public static Object executeMethod(Object obj, Method method, Object... params) {
@@ -129,7 +129,7 @@ public final class ReflectUtils {
 		try {
 			return method.invoke(obj, params);
 		} catch(Exception exc) {
-			throw new ReflectUtilsException("Unable to execute method " + method.getName(), exc);
+			throw new ReflectUtilsException("Unable to execute method " + method.getName(), exc); //$NON-NLS-1$
 		}
 	}
 }

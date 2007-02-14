@@ -114,25 +114,12 @@ public final class ArrayUtils {
 				return StringUtils.nonNullValue(p);
 			}});
     	StringBuilder builder = new StringBuilder();
-    	builder.append("[");
+    	builder.append("["); //$NON-NLS-1$
     	for(String str : vals) {
-    		builder.append(str + ", ");
+    		builder.append(str + ", "); //$NON-NLS-1$
     	}
     	builder.setLength(builder.length() - 2);
-    	builder.append("]");
+    	builder.append("]"); //$NON-NLS-1$
     	return builder.toString();
-    }
-    
-    public static void main(String[] args) {
-    	Integer[] array = asArray(1, 2, 3, 4, 5);
-    	
-		Function2<Integer, Integer, Integer> functor = new Function2<Integer, Integer, Integer>() {
-							public Integer execute(Integer p1, Integer p2) {
-								return p1 - p2;
-							}
-						};
-
-		System.out.println("Foldr: " + foldr(array, 0, functor));
-		System.out.println("Foldl: " + foldl(array, 0, functor));
     }
 }

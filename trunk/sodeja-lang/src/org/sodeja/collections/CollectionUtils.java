@@ -63,4 +63,10 @@ public final class CollectionUtils {
         }
         return false;
     }
+    
+    public static <T> void execute(Collection<T> collection, Function1<Void, T> functor) {
+    	for(T t : collection) {
+    		functor.execute(t);
+    	}
+    }
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import org.sodeja.functional.Function1;
 import org.sodeja.functional.IdentityFunction;
 import org.sodeja.functional.Predicate1;
+import org.sodeja.functional.Predicate2;
 
 
 public final class ListUtils {
@@ -37,5 +38,23 @@ public final class ListUtils {
     
     public static <T> T[] asArray(List<T> data) {
     	return CollectionUtils.mapToArray(data, new IdentityFunction<T>());
+    }
+    
+    public static <T, R> boolean equals(List<T> first, List<R> second, Predicate2<T, R> functor) {
+    	if(first.size() != second.size()) {
+    		return false;
+    	}
+    	
+    	for(int i = 0, n = first.size();i < n;i++) {
+    		if(! functor.execute(first.get(i), second.get(i))) {
+    			return false;
+    		}
+    	}
+    	
+    	return true;
+    }
+    
+    public static <T> void execute(List<T> list, Function1<Void, T> functor) {
+    	CollectionUtils.execute(list, functor);
     }
 }
