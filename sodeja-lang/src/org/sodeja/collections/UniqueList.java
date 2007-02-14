@@ -20,7 +20,7 @@ public class UniqueList<E> extends ArrayList<E> {
 
     @Override
     public void add(int index, E element) {
-        throw new UnsupportedOperationException("Not implemented");
+        throw new UnsupportedOperationException("Not implemented"); //$NON-NLS-1$
     }
 
     @SuppressWarnings("unchecked")
@@ -34,6 +34,6 @@ public class UniqueList<E> extends ArrayList<E> {
 
     @Override
     public boolean addAll(int index, Collection<? extends E> c) {
-        throw new UnsupportedOperationException("Not implemented");
+        throw new UnsupportedOperationException("Not implemented"); //$NON-NLS-1$
     }
 }

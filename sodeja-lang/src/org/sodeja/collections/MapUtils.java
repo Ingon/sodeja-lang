@@ -47,7 +47,7 @@ public class MapUtils {
 	@SuppressWarnings("unchecked")
 	public static Map asMap(Object... vals) {
 		if(vals.length % 2 != 0) {
-			throw new IllegalArgumentException("The size of the array should be devidable by 2");
+			throw new IllegalArgumentException("The size of the array should be devidable by 2"); //$NON-NLS-1$
 		}
 		
 		Map result = new HashMap();

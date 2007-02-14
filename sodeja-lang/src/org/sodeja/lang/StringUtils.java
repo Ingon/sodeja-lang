@@ -28,7 +28,7 @@ public final class StringUtils {
     
     public static String nonNullValue(Object obj) {
     	if(obj == null) {
-    		return "";
+    		return ""; //$NON-NLS-1$
     	}
     	return String.valueOf(obj);
     }
