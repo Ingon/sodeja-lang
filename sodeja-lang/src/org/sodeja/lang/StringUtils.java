@@ -32,4 +32,11 @@ public final class StringUtils {
     	}
     	return String.valueOf(obj);
     }
+
+	public static String getValue(Object value, String string) {
+		if(value == null) {
+			return string;
+		}
+		return String.valueOf(value);
+	}
 }
