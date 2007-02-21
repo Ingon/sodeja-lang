@@ -5,7 +5,7 @@ import java.util.Collection;
 
 import org.sodeja.functional.Predicate1;
 
-
+// TODO fix this
 public class UniqueList<E> extends ArrayList<E> {
 
     private static final long serialVersionUID = -8699432868653288992L;
