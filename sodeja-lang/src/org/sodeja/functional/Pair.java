@@ -1,21 +1,21 @@
 package org.sodeja.functional;
 
-public class Pair<P1, P2> {
+public class Pair<First, Second> {
 	
-	public final P1 p1;
-	public final P2 p2;
+	public final First first;
+	public final Second second;
 	
-	public Pair(P1 p1, P2 p2) {
-		this.p1 = p1;
-		this.p2 = p2;
+	public Pair(First first, Second second) {
+		this.first = first;
+		this.second = second;
 	}
 
 	@Override
 	public int hashCode() {
 		final int PRIME = 31;
 		int result = 1;
-		result = PRIME * result + ((p1 == null) ? 0 : p1.hashCode());
-		result = PRIME * result + ((p2 == null) ? 0 : p2.hashCode());
+		result = PRIME * result + ((first == null) ? 0 : first.hashCode());
+		result = PRIME * result + ((second == null) ? 0 : second.hashCode());
 		return result;
 	}
 
@@ -28,15 +28,15 @@ public class Pair<P1, P2> {
 		if (getClass() != obj.getClass())
 			return false;
 		final Pair other = (Pair) obj;
-		if (p1 == null) {
-			if (other.p1 != null)
+		if (first == null) {
+			if (other.first != null)
 				return false;
-		} else if (!p1.equals(other.p1))
+		} else if (!first.equals(other.first))
 			return false;
-		if (p2 == null) {
-			if (other.p2 != null)
+		if (second == null) {
+			if (other.second != null)
 				return false;
-		} else if (!p2.equals(other.p2))
+		} else if (!second.equals(other.second))
 			return false;
 		return true;
 	}

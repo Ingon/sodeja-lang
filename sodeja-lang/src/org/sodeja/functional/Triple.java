@@ -1,19 +1,19 @@
 package org.sodeja.functional;
 
-public class Triple<P1, P2, P3> extends Pair<P1, P2>{
+public class Triple<First, Second, Third> extends Pair<First, Second>{
 
-	public final P3 p3;
+	public final Third third;
 	
-	public Triple(P1 p1, P2 p2, P3 p3) {
-		super(p1, p2);
-		this.p3 = p3;
+	public Triple(First first, Second second, Third third) {
+		super(first, second);
+		this.third = third;
 	}
 
 	@Override
 	public int hashCode() {
 		final int PRIME = 31;
 		int result = super.hashCode();
-		result = PRIME * result + ((p3 == null) ? 0 : p3.hashCode());
+		result = PRIME * result + ((third == null) ? 0 : third.hashCode());
 		return result;
 	}
 
@@ -26,10 +26,10 @@ public class Triple<P1, P2, P3> extends Pair<P1, P2>{
 		if (getClass() != obj.getClass())
 			return false;
 		final Triple other = (Triple) obj;
-		if (p3 == null) {
-			if (other.p3 != null)
+		if (third == null) {
+			if (other.third != null)
 				return false;
-		} else if (!p3.equals(other.p3))
+		} else if (!third.equals(other.third))
 			return false;
 		return true;
 	}
