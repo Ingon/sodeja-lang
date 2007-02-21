@@ -102,8 +102,7 @@ public final class ReflectUtils {
 			}
 		}
 
-		throw new ReflectUtilsException(
-				"Was unable to find required method"); //$NON-NLS-1$
+		throw new ReflectUtilsException("Was unable to find <" + methodName + "> method in <" + obj.getClass() + ">: "); //$NON-NLS-1$
 	}
 	
 	public static Method findLocalMethod(Class clazz, String methodName, Class... types) {
