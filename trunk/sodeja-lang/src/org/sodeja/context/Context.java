@@ -1,5 +1,6 @@
 package org.sodeja.context;
 
+// TODO put with factory
 public interface Context {
 	public class Key<T> {
 	}

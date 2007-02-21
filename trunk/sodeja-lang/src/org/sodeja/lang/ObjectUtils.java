@@ -4,17 +4,17 @@ public final class ObjectUtils {
 	private ObjectUtils() {
 	}
 	
-    public boolean equalsIfNull(Object obj1, Object obj2) {
+    public static boolean equalsIfNull(Object obj1, Object obj2) {
         if(obj1 == obj2) {
             return true;
         }
-        if((obj1 == null && obj2 != null) || (obj1 != null && obj2 == null)) {
+        if((obj1 == null || obj2 == null)) {
             return false;
         }
         return obj1.equals(obj2);
     }
     
-    public boolean equalIfNotNull(Object obj1, Object obj2) {
+    public static boolean equalIfNotNull(Object obj1, Object obj2) {
         if(obj1 != null) {
             return obj1.equals(obj2);
         }
@@ -24,7 +24,7 @@ public final class ObjectUtils {
         return false;
     }
     
-    public boolean equalIfFirstNotNull(Object obj1, Object obj2) {
+    public static boolean equalIfFirstNotNull(Object obj1, Object obj2) {
         if(obj1 == null) {
             return false;
         }
