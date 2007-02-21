@@ -39,6 +39,13 @@ public interface Function2<R, P1, P2> {
     		};
     	}
     	
+    	public static <P1, P2> Function2<Pair<P1, P2>, P1, P2> createPairFunctor(Class<P1> cl1, Class<P2> cl2) {
+    		return new Function2<Pair<P1, P2>, P1, P2>() {
+				public Pair<P1, P2> execute(P1 p1, P2 p2) {
+					return new Pair<P1, P2>(p1, p2);
+				}};
+    	}
+    	
 //        public static void main(String[] args) {
 //        	Function2<String, String, String> adder = new Function2<String, String, String>() {
 //				public String execute(String p1, String p2) {

@@ -33,4 +33,9 @@ public class Triple<First, Second, Third> extends Pair<First, Second>{
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "(" + first + ", " + second + ", " + third + ")";
+	}
 }

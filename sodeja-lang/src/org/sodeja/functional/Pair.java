@@ -40,4 +40,9 @@ public class Pair<First, Second> {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "(" + first + ", " + second + ")";
+	}
 }
