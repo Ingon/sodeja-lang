@@ -51,6 +51,13 @@ public interface Function1<R, P> {
 			};
     	}
 
+    	public static <T> Function1<T, T> just(Class<T> cl) {
+    		return new Function1<T, T>() {
+				public T execute(T p) {
+					return p;
+				}};
+    	}
+    	
 //        private static Function1<Integer, Integer> fib;
 //    	
 //        public static void main(String[] args) {

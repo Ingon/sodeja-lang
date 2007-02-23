@@ -46,6 +46,22 @@ public interface Function2<R, P1, P2> {
 				}};
     	}
     	
+    	public static <R, P2> Function2<R, R, P2> justFirst(Class<R> cl1, Class<P2> cl2) {
+    		return new Function2<R, R, P2>() {
+				public R execute(R p1, P2 p2) {
+					return p1;
+				}
+    		};
+    	}
+    	
+    	public static <R, P1> Function2<R, P1, R> justSecond(Class<R> cl1, Class<P1> cl2) {
+    		return new Function2<R, P1, R>() {
+				public R execute(P1 p1, R p2) {
+					return p2;
+				}
+    		};
+    	}
+
 //        public static void main(String[] args) {
 //        	Function2<String, String, String> adder = new Function2<String, String, String>() {
 //				public String execute(String p1, String p2) {
