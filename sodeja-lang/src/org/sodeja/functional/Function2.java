@@ -54,7 +54,7 @@ public interface Function2<R, P1, P2> {
     		};
     	}
     	
-    	public static <R, P1> Function2<R, P1, R> justSecond(Class<R> cl1, Class<P1> cl2) {
+    	public static <R, P1> Function2<R, P1, R> justSecond(Class<P1> cl2, Class<R> cl1) {
     		return new Function2<R, P1, R>() {
 				public R execute(P1 p1, R p2) {
 					return p2;
