@@ -131,4 +131,12 @@ public final class ReflectUtils {
 			throw new ReflectUtilsException("Unable to execute method " + method.getName(), exc); //$NON-NLS-1$
 		}
 	}
+	
+	public static <R> R newInstance(Class<R> clazz) {
+		try {
+			return clazz.newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
