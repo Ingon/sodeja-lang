@@ -86,6 +86,10 @@ public final class ArrayUtils {
         return array == null || array.length == 0;
     }
 
+    public static boolean isEmpty(int[] array) {
+        return array == null || array.length == 0;
+    }
+    
     static Object[] createArray(Function1 functor, int length) {
     	return createArray(functor, 0, length);
     }
