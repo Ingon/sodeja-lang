@@ -57,4 +57,18 @@ public final class ListUtils {
     public static <T> void execute(List<T> list, Function1<Void, T> functor) {
     	CollectionUtils.execute(list, functor);
     }
+    
+    public static <T> T first(List<T> list) {
+    	if(list.isEmpty()) {
+    		return null;
+    	}
+    	return list.get(0);
+    }
+    
+    public static <T> T last(List<T> list) {
+    	if(list.isEmpty()) {
+    		return null;
+    	}
+    	return list.get(list.size() - 1);
+    }
 }
