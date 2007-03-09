@@ -2,6 +2,7 @@ package org.sodeja.collections;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.sodeja.functional.Function1;
@@ -70,5 +71,21 @@ public final class ListUtils {
     		return null;
     	}
     	return list.get(list.size() - 1);
+    }
+    
+    public static <T> T findMinMatch(List<T> list, Predicate1<T> functor, Comparator<T> comparator) {
+    	List<T> filtered = filter(list, functor);
+    	if(filtered.isEmpty()) {
+    		return null;
+    	}
+    	return Collections.min(filtered, comparator);
+    }
+
+    public static <T> T findMaxMatch(List<T> list, Predicate1<T> functor, Comparator<T> comparator) {
+    	List<T> filtered = filter(list, functor);
+    	if(filtered.isEmpty()) {
+    		return null;
+    	}
+    	return Collections.max(filtered, comparator);
     }
 }
