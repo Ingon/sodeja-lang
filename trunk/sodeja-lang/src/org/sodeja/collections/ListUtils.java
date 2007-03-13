@@ -73,6 +73,20 @@ public final class ListUtils {
     	return list.get(list.size() - 1);
     }
     
+    public static <T> T head(List<T> list) {
+    	if(list instanceof ConsList) {
+    		return ((ConsList<T>) list).getHead();
+    	}
+    	return first(list);
+    }
+    
+    public static <T> List<T> tail(List<T> list) {
+    	if(list instanceof ConsList) {
+    		return ((ConsList<T>) list).getTail();
+    	}
+    	return list.subList(1, list.size());
+    }
+    
     public static <T> T findMinMatch(List<T> list, Predicate1<T> functor, Comparator<T> comparator) {
     	List<T> filtered = filter(list, functor);
     	if(filtered.isEmpty()) {
@@ -87,5 +101,17 @@ public final class ListUtils {
     		return null;
     	}
     	return Collections.max(filtered, comparator);
+    }
+    
+    public static <T> int insertSorted(List<T> list, T obj, Comparator<T> comparator) {
+    	for(int i = 0, n = list.size();i < n;i++) {
+    		if(comparator.compare(obj, list.get(i)) < 0) {
+    			list.add(i, obj);
+    			return i;
+    		}
+    	}
+    	
+    	list.add(obj);
+    	return list.size() - 1;
     }
 }
