@@ -2,6 +2,7 @@ package org.sodeja.model;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -36,6 +37,11 @@ public class DefaultLocalizableResource implements LocalizableResource {
 	}
 
 	public Collection<Locale> getAvailableLocales() {
+		for(Iterator<Map.Entry<Locale, String>> ite = i18nMap.entrySet().iterator();ite.hasNext();) {
+			if(ite.next().getValue() == null) {
+				ite.remove();
+			}
+		}
 		return i18nMap.keySet();
 	}
 }
