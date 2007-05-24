@@ -90,11 +90,13 @@ public final class ArrayUtils {
         return array == null || array.length == 0;
     }
     
-    static Object[] createArray(Function1 functor, int length) {
+    @SuppressWarnings("unchecked")
+	static Object[] createArray(Function1 functor, int length) {
     	return createArray(functor, 0, length);
     }
 
-    static Object[] createArray(Object genericed, int position, int length) {
+    @SuppressWarnings("unchecked")
+	static Object[] createArray(Object genericed, int position, int length) {
         ParameterizedType parameterizedType = ((ParameterizedType) genericed
 		                .getClass().getGenericInterfaces()[0]);
 		Type type = parameterizedType.getActualTypeArguments()[position];
