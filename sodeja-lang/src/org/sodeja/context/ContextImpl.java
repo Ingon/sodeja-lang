@@ -5,10 +5,10 @@ import java.util.Map;
 
 public class ContextImpl implements Context {
 	
-	private Map values;
+	private Map<Key<?>, Object> values;
 	
 	public ContextImpl() {
-		values = new HashMap();
+		values = new HashMap<Key<?>, Object>();
 	}
 	
 	@SuppressWarnings("unchecked")

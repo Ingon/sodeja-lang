@@ -33,7 +33,8 @@ public interface Function1<R, P> {
     		};
     	}
     	
-    	public static Function1 reflectedStatic(Class clazz, String name, Class type) {
+    	@SuppressWarnings("unchecked")
+		public static Function1 reflectedStatic(Class clazz, String name, Class type) {
     		final Method method = ReflectUtils.findLocalMethod(clazz, name, type);
     		return new Function1() {
 				public Object execute(Object p) {
@@ -42,7 +43,8 @@ public interface Function1<R, P> {
 			};
     	}
 
-    	public static Function1 reflectedDynamic(final Object object, String name, Class type) {
+    	@SuppressWarnings("unchecked")
+		public static Function1 reflectedDynamic(final Object object, String name, Class type) {
     		final Method method = ReflectUtils.findLocalMethod(object.getClass(), name, type);
     		return new Function1() {
 				public Object execute(Object p) {
