@@ -28,7 +28,7 @@ public final class CollectionUtils {
         for (T t : source) {
             R executeResult = functor.execute(t);
             if(result == null && executeResult != null) {
-            	result = (R[]) ArrayUtils.createArray(executeResult, source.size());
+            	result = (R[]) ArrayUtils.createArray1(executeResult, source.size());
             }
             if(result != null) {
             	result[i++] = executeResult;
