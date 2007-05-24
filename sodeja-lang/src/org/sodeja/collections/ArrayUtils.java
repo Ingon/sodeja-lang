@@ -21,7 +21,7 @@ public final class ArrayUtils {
         for (int i = 0; i < source.length; i++) {
             R executeResult = functor.execute(source[i]);
             if(result == null && executeResult != null) {
-            	result = (R[]) ArrayUtils.createArray(executeResult, source.length);
+            	result = (R[]) ArrayUtils.createArray1(executeResult, source.length);
             }
             if(result != null) {
             	result[i] = executeResult;
@@ -105,7 +105,7 @@ public final class ArrayUtils {
     }
 
     @SuppressWarnings("unchecked")
-	static <T> T[] createArray(T component, int length) {
+	static <T> T[] createArray1(T component, int length) {
         if(component == null) {
             return null;
         }
