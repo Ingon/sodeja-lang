@@ -85,6 +85,15 @@ public final class ReflectUtils {
 		return executeMethod(obj, method, params);
 	}
 	
+	public static Object executeMethod(Object obj, String methodName, Object[] params) {
+		Class[] paramTypes = new Class[params.length];
+		for(int i = 0;i < params.length;i++) {
+			paramTypes[i] = params[i].getClass();
+		}
+		
+		return executeMethod(obj, methodName, paramTypes, params);
+	}
+	
 	public static Method findMethodInHierarchy(Object obj, String methodName, Class... types) {
 		if (obj == null) {
 			return null;
