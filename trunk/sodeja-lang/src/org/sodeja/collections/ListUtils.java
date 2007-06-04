@@ -114,4 +114,20 @@ public final class ListUtils {
     	list.add(obj);
     	return list.size() - 1;
     }
+
+	public static <T, R> List<R> collectItems(List<T> original, Function1<R, T> closure) {
+		List<R> items = new ArrayList<R>();
+		for(T obj : original) {
+			items.add(closure.execute(obj));
+		}
+		return items;
+	}
+	
+	public static <T> int sum(List<T> list, Function1<Integer, T> closure) {
+		int total = 0;
+		for(T obj : list) {
+			total += closure.execute(obj);
+		}
+		return total;
+	}
 }
