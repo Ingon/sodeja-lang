@@ -2,7 +2,14 @@ package org.sodeja.lang.reflect;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import org.sodeja.collections.ArrayUtils;
+import org.sodeja.collections.ListUtils;
+import org.sodeja.functional.Function1;
+import org.sodeja.functional.Predicate1;
 import org.sodeja.lang.StringUtils;
 
 public final class ReflectUtils {
@@ -39,8 +46,7 @@ public final class ReflectUtils {
 			return null;
 		}
 
-		for (Class clazz = obj.getClass(); clazz != null; clazz = clazz
-				.getSuperclass()) {
+		for (Class clazz = obj.getClass(); clazz != null; clazz = clazz.getSuperclass()) {
 			try {
 				return clazz.getField(fieldName);
 			} catch (Exception e) {
@@ -86,10 +92,10 @@ public final class ReflectUtils {
 	}
 	
 	public static Object executeMethod(Object obj, String methodName, Object[] params) {
-		Class[] paramTypes = new Class[params.length];
-		for(int i = 0;i < params.length;i++) {
-			paramTypes[i] = params[i].getClass();
-		}
+		Class[] paramTypes = ArrayUtils.map(params, new Function1<Class, Object>() {
+			public Class execute(Object p) {
+				return p.getClass();
+			}});
 		
 		return executeMethod(obj, methodName, paramTypes, params);
 	}
@@ -100,21 +106,28 @@ public final class ReflectUtils {
 		}
 
 		for (Class clazz = obj.getClass(); clazz != null; clazz = clazz.getSuperclass()) {
-			try {
-				return clazz.getMethod(methodName, types);
-			} catch (Exception e) {
+			Method method = findLocalMethodImpl(clazz, methodName, types);
+			if(method == null) {
+				continue;
 			}
-
-			try {
-				return clazz.getDeclaredMethod(methodName, types);
-			} catch (Exception e) {
-			}
+			
+			return method;
 		}
 
 		throw new ReflectUtilsException("Was unable to find <" + methodName + "> method in <" + obj.getClass() + ">: "); //$NON-NLS-1$
 	}
 	
 	public static Method findLocalMethod(Class clazz, String methodName, Class... types) {
+		Method method = findLocalMethodImpl(clazz, methodName, types);
+		
+		if(method == null) {
+			throw new ReflectUtilsException("Was unable to find required method"); //$NON-NLS-1$
+		}
+		
+		return method;
+	}
+	
+	private static Method findLocalMethodImpl(Class clazz, String methodName, Class... types) {
 		try {
 			return clazz.getMethod(methodName, types);
 		} catch (Exception e) {
@@ -124,9 +137,8 @@ public final class ReflectUtils {
 			return clazz.getDeclaredMethod(methodName, types);
 		} catch (Exception e) {
 		}
-		
-		throw new ReflectUtilsException(
-			"Was unable to find required method"); //$NON-NLS-1$
+
+		return null;
 	}
 	
 	public static Object executeMethod(Object obj, Method method, Object... params) {
@@ -146,6 +158,30 @@ public final class ReflectUtils {
 			return clazz.newInstance();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
+		}
+	}
+	
+	private static List<Method> findMethodsByName(Class clazz, final String methodName) {
+		final List<Method> methods = new ArrayList<Method>();
+		executeOnHierarchy(clazz, new Predicate1<Class>() {
+			public Boolean execute(Class p) {
+				Method[] localMethods = ArrayUtils.filter(p.getMethods(), new Predicate1<Method>() {
+					public Boolean execute(Method p) {
+						return p.getName().equals(methodName);
+					}});
+				methods.addAll(ListUtils.asList(localMethods));
+				
+				return Boolean.TRUE;
+			}});
+		
+		return methods;
+	}
+	
+	private static void executeOnHierarchy(Class clazz, Predicate1<Class> functor) {
+		for (; clazz != null; clazz = clazz.getSuperclass()) {
+			if(! functor.execute(clazz)) {
+				break;
+			}
 		}
 	}
 }
