@@ -116,12 +116,10 @@ public final class ListUtils {
     	return list.size() - 1;
     }
 
-	public static <T, R> List<R> collectItems(List<T> original, Function1<R, T> closure) {
-		List<R> items = new ArrayList<R>();
-		for(T obj : original) {
-			items.add(closure.execute(obj));
-		}
-		return items;
+	public static <T, R> List<R> collectItems(List<T> source, Function1<R, T> closure) {
+		List<R> result = new ArrayList<R>();
+		CollectionUtils.map(source, result, closure);
+		return result;
 	}
 	
 	public static <R, P> R foldr(List<P> source, R initial, Function2<R, P, R> functor) {
