@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.sodeja.functional.Function1;
+import org.sodeja.functional.Function2;
 import org.sodeja.functional.IdentityFunction;
 import org.sodeja.functional.Predicate1;
 import org.sodeja.functional.Predicate2;
@@ -123,11 +124,40 @@ public final class ListUtils {
 		return items;
 	}
 	
-	public static <T> int sum(List<T> list, Function1<Integer, T> closure) {
-		int total = 0;
-		for(T obj : list) {
-			total += closure.execute(obj);
+	public static <R, P> R foldr(List<P> source, R initial, Function2<R, P, R> functor) {
+		R result = initial;
+		for(int i = source.size() - 1;i >= 0;i--) {
+			result = functor.execute(source.get(i), result);
 		}
-		return total;
+		return result;
+	}
+	
+	public static <R, P> R foldl(List<P> source, R initial, Function2<R, R, P> functor) {
+		R result = initial;
+		for(int i = 0;i < source.size();i++) {
+			result = functor.execute(result, source.get(i));
+		}
+		return result;
+	}
+
+	public static <P> boolean any(List<P> source, final Predicate1<P> functor) {
+		return foldr(source, false, new Function2<Boolean, P, Boolean>() {
+			public Boolean execute(P object, Boolean tempResult) {
+				return tempResult | functor.execute(object);
+			}});
+	}
+	
+	public static <P> boolean all(List<P> source, final Predicate1<P> functor) {
+		return foldr(source, true, new Function2<Boolean, P, Boolean>() {
+			public Boolean execute(P object, Boolean tempResult) {
+				return tempResult & functor.execute(object);
+			}});
+	}
+
+	public static <T> int sum(List<T> list, final Function1<Integer, T> closure) {
+		return foldr(list, 0, new Function2<Integer, T, Integer>() {
+			public Integer execute(T p1, Integer p2) {
+				return p2 + closure.execute(p1);
+			}});
 	}
 }
