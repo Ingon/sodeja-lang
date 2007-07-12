@@ -60,28 +60,28 @@ public interface Function1<R, P> {
 				}};
     	}
     	
-//        private static Function1<Integer, Integer> fib;
+//        private static Function1<Integer, Integer> fib= new Function1<Integer, Integer>() {
+//			public Integer execute(Integer p) {
+//				if(p < 2) {
+//					return p;
+//				}
+//				return fib.execute(p - 1) + fib.execute(p - 2);
+//			}
+//		};
 //    	
 //        public static void main(String[] args) {
-//        	fib = new Function1<Integer, Integer>() {
-//    			public Integer execute(Integer p) {
-//    				if(p < 2) {
-//    					return p;
-//    				}
-//    				return fib.execute(p - 1) + fib.execute(p - 2);
-//    			}
-//    		};
-//        	
 //			long time = System.currentTimeMillis();
 //			for(int i = 0;i < 40;i++) {
-//				System.out.print(fib.execute(i) + ", ");
+//				fib.execute(i);
+////				System.out.print(fib.execute(i) + ", ");
 //			}
 //			System.out.println("\nTotal1: " + (System.currentTimeMillis() - time));
 //			
 //			fib = memorize(fib);
 //			time = System.currentTimeMillis();
 //			for(int i = 0;i < 20000;i++) {
-//				System.out.print(fib.execute(i) + ", ");
+//				fib.execute(i);
+////				System.out.print(fib.execute(i) + ", ");
 //			}
 //			System.out.println("\nTotal2: " + (System.currentTimeMillis() - time));
 //        }
