@@ -35,22 +35,36 @@ public final class ArrayUtils {
         return map(source, (R[]) createArray(functor, source.length), functor);
     }
     
-	public static <P> P foldr(P[] source, P initial, Function2<P, P, P> functor) {
-		P result = initial;
+	public static <R, P> R foldr(P[] source, R initial, Function2<R, P, R> functor) {
+		R result = initial;
 		for(int i = source.length - 1;i >= 0;i--) {
 			result = functor.execute(source[i], result);
 		}
 		return result;
 	}
 	
-	public static <P> P foldl(P[] source, P initial, Function2<P, P, P> functor) {
-		P result = initial;
+	public static <R, P> R foldl(P[] source, R initial, Function2<R, R, P> functor) {
+		R result = initial;
 		for(int i = 0;i < source.length;i++) {
 			result = functor.execute(result, source[i]);
 		}
 		return result;
 	}
     
+	public static <P> boolean any(P[] source, final Predicate1<P> functor) {
+		return foldr(source, false, new Function2<Boolean, P, Boolean>() {
+			public Boolean execute(P object, Boolean tempResult) {
+				return tempResult | functor.execute(object);
+			}});
+	}
+	
+	public static <P> boolean all(P[] source, final Predicate1<P> functor) {
+		return foldr(source, true, new Function2<Boolean, P, Boolean>() {
+			public Boolean execute(P object, Boolean tempResult) {
+				return tempResult & functor.execute(object);
+			}});
+	}
+	
     public static <T, R> Collection<R> mapToCollection(T[] source, Collection<R> result, Function1<R, T> functor) {
     	for(T t : source) {
     		result.add(functor.execute(t));
