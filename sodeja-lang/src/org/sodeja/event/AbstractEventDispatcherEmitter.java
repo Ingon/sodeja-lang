@@ -44,7 +44,8 @@ public abstract class AbstractEventDispatcherEmitter implements EventDispatcher,
         ParameterizedType parameterizedType = ((ParameterizedType) listener.getClass().getGenericInterfaces()[0]);
         Type type = parameterizedType.getActualTypeArguments()[0];
         if(! (type instanceof Class)) {
-        	throw new IllegalArgumentException();
+        	return;
+//        	throw new IllegalArgumentException();
         }
         
         Class listenerParamerClass = (Class) type; 
