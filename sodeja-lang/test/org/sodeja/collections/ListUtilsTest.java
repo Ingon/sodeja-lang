@@ -60,4 +60,12 @@ public class ListUtilsTest extends TestCase {
 	public void testSum() {
 		assertEquals(1 + 2 + 3, ListUtils.sum(ListUtils.asList(1, 2, 3), new IdentityFunction<Integer>()));
 	}
+	
+	public void testFlattern() {
+		assertEquals(0, ListUtils.flattern(new ArrayList<List<Integer>>()).size());
+		List<Integer> first = ListUtils.asList(1, 2);
+		List<Integer> second = ListUtils.asList(3, 4);
+		List<List<Integer>> req = ListUtils.asList(first, second);
+		assertEquals(ListUtils.asList(1, 2, 3, 4), ListUtils.flattern(req));
+	}
 }

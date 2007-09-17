@@ -60,6 +60,12 @@ public final class ListUtils {
     	CollectionUtils.execute(list, functor);
     }
     
+    public static <T> void execute(List<T> list, Function2<Void, T, Integer> functor) {
+    	for(int i = 0;i < list.size();i++) {
+    		functor.execute(list.get(i), i);
+    	}
+    }
+    
     public static <T> T first(List<T> list) {
     	if(list.isEmpty()) {
     		return null;
@@ -156,6 +162,15 @@ public final class ListUtils {
 		return foldr(list, 0, new Function2<Integer, T, Integer>() {
 			public Integer execute(T p1, Integer p2) {
 				return p2 + closure.execute(p1);
+			}});
+	}
+	
+	public static <T> List<T> flattern(List<List<T>> list) {
+		return foldr(list, new ArrayList<T>(), new Function2<List<T>, List<T>, List<T>>() {
+			@Override
+			public List<T> execute(List<T> p1, List<T> p2) {
+				p1.addAll(p2);
+				return p1;
 			}});
 	}
 }
