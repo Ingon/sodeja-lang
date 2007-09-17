@@ -65,6 +65,20 @@ public final class ArrayUtils {
 			}});
 	}
 	
+	public static <T> T[] append(T value, T[] source) {
+		T[] result = (T[]) Array.newInstance(value.getClass(), source.length + 1);
+		System.arraycopy(source, 0, result, 1, source.length);
+		result[0] = value;
+		return result;
+	}
+
+	public static <T> T[] append(T[] source, T value) {
+		T[] result = (T[]) Array.newInstance(value.getClass(), source.length + 1);
+		System.arraycopy(source, 0, result, 0, source.length);
+		result[source.length] = value;
+		return result;
+	}
+	
     public static <T, R> Collection<R> mapToCollection(T[] source, Collection<R> result, Function1<R, T> functor) {
     	for(T t : source) {
     		result.add(functor.execute(t));
