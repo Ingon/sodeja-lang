@@ -1,7 +1,5 @@
 package org.sodeja.event;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,20 +38,20 @@ public abstract class AbstractEventDispatcherEmitter implements EventDispatcher,
         	((EventListener) listener).onEvent(event);
 			return;
 		}
-		
-        ParameterizedType parameterizedType = ((ParameterizedType) listener.getClass().getGenericInterfaces()[0]);
-        Type type = parameterizedType.getActualTypeArguments()[0];
-        if(! (type instanceof Class)) {
-        	return;
-//        	throw new IllegalArgumentException();
-        }
-        
-        Class listenerParamerClass = (Class) type; 
-        if(listenerParamerClass.equals(event.getClass())) {
-        	((EventListener) listener).onEvent(event);
-        	return;
-        }
-        
-		throw new UnsupportedOperationException();
+//		
+//        ParameterizedType parameterizedType = ((ParameterizedType) listener.getClass().getGenericInterfaces()[0]);
+//        Type type = parameterizedType.getActualTypeArguments()[0];
+//        if(! (type instanceof Class)) {
+//        	return;
+////        	throw new IllegalArgumentException();
+//        }
+//        
+//        Class listenerParamerClass = (Class) type; 
+//        if(listenerParamerClass.equals(event.getClass())) {
+//        	((EventListener) listener).onEvent(event);
+//        	return;
+//        }
+//        
+//		throw new UnsupportedOperationException();
 	}
 }
