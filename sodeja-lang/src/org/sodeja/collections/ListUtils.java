@@ -165,6 +165,11 @@ public final class ListUtils {
 			}});
 	}
 	
+	public static <T> double average(List<T> list, final Function1<Integer, T> closure) {
+		int total = sum(list, closure);
+		return total/list.size();
+	}
+	
 	public static <T> List<T> flattern(List<List<T>> list) {
 		return foldr(list, new ArrayList<T>(), new Function2<List<T>, List<T>, List<T>>() {
 			@Override
