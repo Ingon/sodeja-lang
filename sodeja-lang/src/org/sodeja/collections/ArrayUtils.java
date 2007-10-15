@@ -32,6 +32,9 @@ public final class ArrayUtils {
     
     @SuppressWarnings("unchecked")
     public static <T, R> R[] map(T[] source, Function1<R, T> functor) {
+    	if(source == null) {
+    		return null;
+    	}
         return map(source, (R[]) createArray(functor, source.length), functor);
     }
     

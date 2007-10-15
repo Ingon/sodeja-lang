@@ -11,6 +11,9 @@ public final class CollectionUtils {
     }
     
     public static <T, R> Collection<R> map(Collection<T> source, Collection<R> result, Function1<R, T> functor) {
+    	if(source == null) {
+    		return null;
+    	}
         for (T t : source) {
             result.add(functor.execute(t));
         }
@@ -19,6 +22,9 @@ public final class CollectionUtils {
     
     @SuppressWarnings("unchecked")
     public static <T, R> R[] mapToArray(Collection<T> source, Function1<R, T> functor) {
+    	if(source == null) {
+    		return null;
+    	}
         return mapToArray(source, (R[]) ArrayUtils.createArray(functor, source.size()), functor);
     }
 
@@ -65,6 +71,9 @@ public final class CollectionUtils {
     }
     
     public static <T> void execute(Collection<T> collection, Function1<Void, T> functor) {
+    	if(collection == null) {
+    		return;
+    	}
     	for(T t : collection) {
     		functor.execute(t);
     	}
