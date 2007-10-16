@@ -64,7 +64,10 @@ public class Rational extends Number {
 		
 		int exponent = parts[1].length();
 		
-		BigInteger tents = BigInteger.TEN.multiply(BigInteger.valueOf(exponent));
+		BigInteger tents = BigInteger.TEN;
+		for(int i = 1;i < exponent;i++) {
+			tents = tents.multiply(BigInteger.TEN);
+		}
 		
 		return simplify(whole.multiply(tents).add(fract), tents);
 	}
