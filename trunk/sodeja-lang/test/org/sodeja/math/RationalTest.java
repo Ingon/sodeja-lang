@@ -11,6 +11,9 @@ public class RationalTest extends TestCase {
 		rat = new Rational("0.5");
 		assertEquals("1/2", rat.toString());
 		assertEquals(0.5, rat.doubleValue());
+
+		rat = new Rational("0.005");
+		assertEquals("1/200", rat.toString());
 		
 		rat = new Rational("1/2");
 		assertEquals("1/2", rat.toString());
