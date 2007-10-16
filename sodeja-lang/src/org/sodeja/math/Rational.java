@@ -159,6 +159,7 @@ public class Rational extends Number {
 
 	@Override
 	public String toString() {
-		return divident.toString() + "/" + divisor.toString();
+		return String.valueOf(doubleValue());
+//		return divident.toString() + "/" + divisor.toString();
 	}
 }
