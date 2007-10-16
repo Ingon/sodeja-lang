@@ -113,6 +113,20 @@ public class Rational extends Number {
 		return new Rational(this.divident.negate(), this.divisor);
 	}
 	
+	public Rational sqrt() {
+		double valDivident = divident.doubleValue();
+		double valDivisor = divisor.doubleValue();
+		
+		double sqDivident = Math.sqrt(valDivident);
+		double sqDivisor = Math.sqrt(valDivisor);
+		
+		// FIXME maybe add a constructor?!?!?
+		Rational ratDivident = new Rational(String.valueOf(sqDivident));
+		Rational ratDivisor = new Rational(String.valueOf(sqDivisor));
+		
+		return ratDivident.divide(ratDivisor);
+	}
+
 	public int compareTo(Rational other) {
 		if(this.divisor.equals(other.divisor)) {
 			return this.divident.compareTo(other.divident);
