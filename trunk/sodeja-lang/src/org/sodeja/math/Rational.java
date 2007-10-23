@@ -59,7 +59,7 @@ public class Rational extends Number {
 		BigInteger whole = new BigInteger(parts[0]);
 		BigInteger fract = new BigInteger(parts[1]);
 		if(fract.equals(BigInteger.ZERO)) {
-			return new Pair<BigInteger, BigInteger>(whole, BigInteger.ONE);
+			return Pair.of(whole, BigInteger.ONE);
 		}
 		
 		int exponent = parts[1].length();
@@ -86,7 +86,7 @@ public class Rational extends Number {
 	
 	private static Pair<BigInteger, BigInteger> simplify(BigInteger divident, BigInteger divisor) {
 		BigInteger gcd = divident.gcd(divisor);
-		return new Pair<BigInteger, BigInteger>(divident.divide(gcd), divisor.divide(gcd));
+		return Pair.of(divident.divide(gcd), divisor.divide(gcd));
 	}
 	
 	public Rational add(Rational other) {
