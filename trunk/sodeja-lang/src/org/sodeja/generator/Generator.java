@@ -1,15 +1,14 @@
 package org.sodeja.generator;
 
 import org.sodeja.collections.ConsList;
-import org.sodeja.functional.Function0;
 import org.sodeja.functional.Maybe;
 
-public class Gen<T> extends ConsList<T> {
+public class Generator<T> extends ConsList<T> {
 
 	private boolean generated = false;
 	private GeneratorFunction<T> promise;
 
-	public Gen(GeneratorFunction<T> promise) {
+	public Generator(GeneratorFunction<T> promise) {
 		Maybe<T> val = promise.execute();
 		if(! val.hasValue()) {
 			throw new IllegalArgumentException("Promise should generate at last one thing");
@@ -18,25 +17,25 @@ public class Gen<T> extends ConsList<T> {
 		this.promise = promise;
 	}
 
-	public Gen(T value, GeneratorFunction<T> promise) {
+	public Generator(T value, GeneratorFunction<T> promise) {
 		this.head = value;
 		this.promise = promise;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Gen<T> tail() {
+	public Generator<T> tail() {
 		if(generated) {
-			return (Gen<T>) super.tail();
+			return (Generator<T>) super.tail();
 		}
 		
 		generated = true;
 		
 		Maybe<T> result = promise.execute();
 		if(result.hasValue()) {
-			this.tail = new Gen<T>(result.value(), promise);
+			this.tail = new Generator<T>(result.value(), promise);
 		}
-		return (Gen<T>) this.tail;
+		return (Generator<T>) this.tail;
 	}
 
 	public GeneratorFunction<T> promise() {

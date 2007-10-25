@@ -13,8 +13,8 @@ import org.sodeja.functional.Maybe;
 import org.sodeja.functional.Predicate1;
 
 public class Generators {
-	public static Gen<Character> readerGenerator(final Reader reader) throws IOException {
-		return new Gen<Character>(new GeneratorFunction<Character>() {
+	public static Generator<Character> readerGenerator(final Reader reader) throws IOException {
+		return new Generator<Character>(new GeneratorFunction<Character>() {
 			@Override
 			public Maybe<Character> execute() {
 				try {
@@ -29,9 +29,9 @@ public class Generators {
 			}});
 	}
 	
-	public static <T> List<T> readFully(Gen<T> generator) {
+	public static <T> List<T> readFully(Generator<T> generator) {
 		List<T> vals = new ArrayList<T>();
-		Gen<T> temp = generator;
+		Generator<T> temp = generator;
 		while(temp != null) {
 			vals.add(temp.head());
 			temp = temp.tail();
@@ -39,9 +39,9 @@ public class Generators {
 		return vals;
 	}
 	
-	public static <T> Gen<T> filter(final Gen<T> generator, final Predicate1<T> predicate) {
-		return new Gen<T>(new GeneratorFunction<T>() {
-			private Gen<T> internal = generator;
+	public static <T> Generator<T> filter(final Generator<T> generator, final Predicate1<T> predicate) {
+		return new Generator<T>(new GeneratorFunction<T>() {
+			private Generator<T> internal = generator;
 			
 			@Override
 			public Maybe<T> execute() {
@@ -59,9 +59,9 @@ public class Generators {
 			}});
 	}
 	
-	public static <T, R> Gen<R> map(final Gen<T> generator, final Function1<R, T> functor) {
-		return new Gen<R>(new GeneratorFunction<R>() {
-			private Gen<T> internal = generator;
+	public static <T, R> Generator<R> map(final Generator<T> generator, final Function1<R, T> functor) {
+		return new Generator<R>(new GeneratorFunction<R>() {
+			private Generator<T> internal = generator;
 			
 			@Override
 			public Maybe<R> execute() {
