@@ -10,6 +10,15 @@ public class Generator<T> {
 	private Function0<Maybe<T>> promise;
 	private Generator<T> next;
 	
+	public Generator(Function0<Maybe<T>> promise) {
+		Maybe<T> val = promise.execute();
+		if(! val.hasValue()) {
+			throw new IllegalArgumentException("Promise should generate at last one thing");
+		}
+		this.value = val.value();
+		this.promise = promise;
+	}
+
 	public Generator(T value, Function0<Maybe<T>> promise) {
 		this.value = value;
 		this.promise = promise;

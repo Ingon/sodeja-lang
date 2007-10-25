@@ -2,6 +2,8 @@ package org.sodeja.generator;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.sodeja.functional.Function0;
 import org.sodeja.functional.Maybe;
@@ -26,5 +28,15 @@ public class Generators {
 					throw new RuntimeException(exc);
 				}
 			}});
+	}
+	
+	public static <T> List<T> readFully(Generator<T> generator) {
+		List<T> vals = new ArrayList<T>();
+		Generator<T> temp = generator;
+		while(temp != null) {
+			vals.add(temp.value());
+			temp = temp.next();
+		}
+		return vals;
 	}
 }
