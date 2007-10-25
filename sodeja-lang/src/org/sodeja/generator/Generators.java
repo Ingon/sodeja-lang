@@ -50,12 +50,20 @@ public class Generators {
 				}
 				
 				T value = internal.head();
-				if(predicate.execute(value)) {
+				while(! predicate.execute(value)) {
 					internal = internal.tail();
-					return just(value);
+					if(internal == null) {
+						break;
+					}
+					value = internal.head();
 				}
 				
-				return execute();
+				if(internal == null) {
+					return nothing();
+				}
+				
+				internal = internal.tail();
+				return just(value);
 			}});
 	}
 	
