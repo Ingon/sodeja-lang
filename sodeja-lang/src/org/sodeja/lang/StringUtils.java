@@ -1,5 +1,11 @@
 package org.sodeja.lang;
 
+import java.util.List;
+
+import org.sodeja.collections.ListUtils;
+import org.sodeja.functional.Function1;
+import org.sodeja.functional.Function2;
+
 public final class StringUtils {
 	private StringUtils() {
 	}
@@ -38,5 +44,25 @@ public final class StringUtils {
 			return string;
 		}
 		return String.valueOf(value);
+	}
+	
+	public static <T> String appendWithSeparatorToString(List<T> vals, final String sep) {
+		return appendWithSeparator(vals, sep, new Function1<String, T>() {
+			@Override
+			public String execute(T p) {
+				return p.toString();
+			}});
+	}
+	
+	public static <T> String appendWithSeparator(List<T> vals, final String sep, Function1<String, T> functor) {
+		List<String> strVals = ListUtils.map(vals, functor);
+		return ListUtils.foldr(strVals, null, new Function2<String, String, String>() {
+			@Override
+			public String execute(String p1, String p2) {
+				if(StringUtils.isEmpty(p2)) {
+					return p1;
+				}
+				return p1 + sep + p2;
+			}});
 	}
 }

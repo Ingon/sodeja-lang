@@ -54,6 +54,11 @@ public class ConsList<T> extends AbstractList<T> {
 		return tail;
 	}
 	
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
+
 	private static class NullConsList<T> extends ConsList<T> {
 		@Override
 		public T get(int index) {
@@ -66,6 +71,11 @@ public class ConsList<T> extends AbstractList<T> {
 		@Override
 		public int size() {
 			return 0;
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return true;
 		}
 	}
 }
