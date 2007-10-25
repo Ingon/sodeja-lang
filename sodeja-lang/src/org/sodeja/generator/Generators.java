@@ -13,8 +13,8 @@ import org.sodeja.functional.Maybe;
 import org.sodeja.functional.Predicate1;
 
 public class Generators {
-	public static Generator<Character> readerGenerator(final Reader reader) throws IOException {
-		return new Generator<Character>(new GeneratorFunction<Character>() {
+	public static Gen<Character> readerGenerator(final Reader reader) throws IOException {
+		return new Gen<Character>(new GeneratorFunction<Character>() {
 			@Override
 			public Maybe<Character> execute() {
 				try {
@@ -29,19 +29,19 @@ public class Generators {
 			}});
 	}
 	
-	public static <T> List<T> readFully(Generator<T> generator) {
+	public static <T> List<T> readFully(Gen<T> generator) {
 		List<T> vals = new ArrayList<T>();
-		Generator<T> temp = generator;
+		Gen<T> temp = generator;
 		while(temp != null) {
-			vals.add(temp.value());
-			temp = temp.next();
+			vals.add(temp.head());
+			temp = temp.tail();
 		}
 		return vals;
 	}
 	
-	public static <T> Generator<T> filter(final Generator<T> generator, final Predicate1<T> predicate) {
-		return new Generator<T>(new GeneratorFunction<T>() {
-			private Generator<T> internal = generator;
+	public static <T> Gen<T> filter(final Gen<T> generator, final Predicate1<T> predicate) {
+		return new Gen<T>(new GeneratorFunction<T>() {
+			private Gen<T> internal = generator;
 			
 			@Override
 			public Maybe<T> execute() {
@@ -49,9 +49,9 @@ public class Generators {
 					return nothing();
 				}
 				
-				T value = internal.value();
+				T value = internal.head();
 				if(predicate.execute(value)) {
-					internal = internal.next();
+					internal = internal.tail();
 					return just(value);
 				}
 				
@@ -59,9 +59,9 @@ public class Generators {
 			}});
 	}
 	
-	public static <T, R> Generator<R> map(final Generator<T> generator, final Function1<R, T> functor) {
-		return new Generator<R>(new GeneratorFunction<R>() {
-			private Generator<T> internal = generator;
+	public static <T, R> Gen<R> map(final Gen<T> generator, final Function1<R, T> functor) {
+		return new Gen<R>(new GeneratorFunction<R>() {
+			private Gen<T> internal = generator;
 			
 			@Override
 			public Maybe<R> execute() {
@@ -69,8 +69,8 @@ public class Generators {
 					return nothing();
 				}
 				
-				T value = internal.value();
-				internal = internal.next();
+				T value = internal.head();
+				internal = internal.tail();
 				
 				return just(functor.execute(value));
 			}});

@@ -82,14 +82,14 @@ public final class ListUtils {
     
     public static <T> T head(List<T> list) {
     	if(list instanceof ConsList) {
-    		return ((ConsList<T>) list).getHead();
+    		return ((ConsList<T>) list).head();
     	}
     	return first(list);
     }
     
     public static <T> List<T> tail(List<T> list) {
     	if(list instanceof ConsList) {
-    		return ((ConsList<T>) list).getTail();
+    		return ((ConsList<T>) list).tail();
     	}
     	return list.subList(1, list.size());
     }
