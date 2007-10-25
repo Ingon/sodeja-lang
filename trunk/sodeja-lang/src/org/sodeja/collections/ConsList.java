@@ -18,10 +18,10 @@ public class ConsList<T> extends AbstractList<T> {
 		return new ConsList<T>(ite.next(), createList(ite));
 	}
 	
-	private T head;
-	private ConsList<T> tail;
+	protected T head;
+	protected ConsList<T> tail;
 	
-	private ConsList() {
+	protected ConsList() {
 	}
 	
 	public ConsList(T head) {
@@ -38,19 +38,19 @@ public class ConsList<T> extends AbstractList<T> {
 		if(index == 0) {
 			return head;
 		}
-		return tail.get(index - 1);
+		return tail().get(index - 1);
 	}
 
 	@Override
 	public int size() {
-		return 1 + tail.size();
+		return 1 + tail().size();
 	}
 	
-	public T getHead() {
+	public T head() {
 		return head;
 	}
 	
-	public ConsList<T> getTail() {
+	public ConsList<T> tail() {
 		return tail;
 	}
 	
