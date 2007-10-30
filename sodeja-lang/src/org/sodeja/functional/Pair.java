@@ -22,7 +22,7 @@ public class Pair<First, Second> {
 	   	return obj instanceof Pair && equals(first, ((Pair) obj).first) && equals(second, ((Pair) obj).second);
 	}
 
-    private static boolean equals(Object x, Object y) {
+    static boolean equals(Object x, Object y) {
 		return (x == null && y == null) || (x != null && x.equals(y));
 	}
 	

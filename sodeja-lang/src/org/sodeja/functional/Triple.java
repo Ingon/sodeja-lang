@@ -19,23 +19,17 @@ public class Triple<First, Second, Third> extends Pair<First, Second>{
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final Triple other = (Triple) obj;
-		if (third == null) {
-			if (other.third != null)
-				return false;
-		} else if (!third.equals(other.third))
-			return false;
-		return true;
-	}
-
+	   	return obj instanceof Triple 
+	   		&& equals(first, ((Triple) obj).first) 
+	   		&& equals(second, ((Triple) obj).second)
+	   		&& equals(third, ((Triple) obj).third);
+	}	
 	@Override
 	public String toString() {
 		return "(" + first + ", " + second + ", " + third + ")";
+	}
+
+	public static <F, S, T> Triple<F, S, T> of(F first, S second, T third) {
+		return new Triple<F, S, T>(first, second, third);
 	}
 }
