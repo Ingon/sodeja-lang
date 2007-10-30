@@ -54,6 +54,10 @@ public class ConsList<T> extends AbstractList<T> {
 		return tail;
 	}
 	
+	public void setHead(T head) {
+		this.head = head;
+	}
+	
 	@Override
 	public boolean isEmpty() {
 		return false;
