@@ -3,13 +3,17 @@ package org.sodeja.collections;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.sodeja.functional.Function1;
 import org.sodeja.functional.Function2;
 import org.sodeja.functional.IdentityFunction;
 import org.sodeja.functional.Predicate1;
 import org.sodeja.functional.Predicate2;
+
+import com.sun.org.apache.bcel.internal.generic.FNEG;
 
 
 public final class ListUtils {
@@ -142,6 +146,23 @@ public final class ListUtils {
 			result = functor.execute(result, source.get(i));
 		}
 		return result;
+	}
+	
+	public static <R, P> Map<R, List<P>> groupBy(List<P> source, final Function1<R, P> functor) {
+		final Map<R, List<P>> groups = new HashMap<R, List<P>>();
+		execute(source, new Function1<Void, P>() {
+			@Override
+			public Void execute(P p) {
+				R val = functor.execute(p);
+				List<P> group = groups.get(val);
+				if(group == null) {
+					group = new ArrayList<P>();
+					groups.put(val, group);
+				}
+				group.add(p);
+				return null;
+			}});
+		return groups;
 	}
 
 	public static <P> boolean any(List<P> source, final Predicate1<P> functor) {

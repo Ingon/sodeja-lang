@@ -184,4 +184,21 @@ public final class ReflectUtils {
 			}
 		}
 	}
+	
+	public static Class resolveClass(String name) {
+		try {
+			return Class.forName(name);
+		} catch(Exception exc) {
+			throw new RuntimeException(exc);
+		}
+	}
+	
+	public static List<Class> loadHierarchy(Class clazz) {
+		List<Class> result = new ArrayList<Class>();
+		for(Class temp = clazz; temp != null; temp = temp.getSuperclass()) {
+			result.add(temp);
+		}
+		Collections.reverse(result);
+		return result;
+	}
 }
