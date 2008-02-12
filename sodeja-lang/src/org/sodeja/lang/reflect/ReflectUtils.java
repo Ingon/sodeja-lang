@@ -2,14 +2,13 @@ package org.sodeja.lang.reflect;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.sodeja.collections.ArrayUtils;
 import org.sodeja.collections.ListUtils;
 import org.sodeja.functional.Function1;
-import org.sodeja.functional.Predicate1;
 import org.sodeja.lang.StringUtils;
 
 public final class ReflectUtils {
@@ -46,15 +45,9 @@ public final class ReflectUtils {
 			return null;
 		}
 
-		for (Class clazz = obj.getClass(); clazz != null; clazz = clazz.getSuperclass()) {
-			try {
-				return clazz.getField(fieldName);
-			} catch (Exception e) {
-			}
-
-			try {
-				return clazz.getDeclaredField(fieldName);
-			} catch (Exception e) {
+		for(Field field : fieldsIterable(obj.getClass())) {
+			if(field.getName().equals(fieldName)) {
+				return field;
 			}
 		}
 
@@ -63,7 +56,8 @@ public final class ReflectUtils {
 	}
 
 	public static Object getFieldValue(Object obj, Field fld) {
-		if (!fld.isAccessible()) {
+		boolean access = fld.isAccessible();
+		if(! access) {
 			fld.setAccessible(true);
 		}
 
@@ -71,11 +65,14 @@ public final class ReflectUtils {
 			return fld.get(obj);
 		} catch (Exception e) {
 			throw new ReflectUtilsException("Unable to get field " + fld.getName() + " value", e); //$NON-NLS-1$ //$NON-NLS-2$
+		} finally {
+			fld.setAccessible(access);
 		}
 	}
 
 	public static void setFieldValue(Object obj, Field fld, Object value) {
-		if (!fld.isAccessible()) {
+		boolean access = fld.isAccessible();
+		if(! access) {
 			fld.setAccessible(true);
 		}
 
@@ -83,6 +80,8 @@ public final class ReflectUtils {
 			fld.set(obj, value);
 		} catch (Exception e) {
 			throw new ReflectUtilsException("Unable to set field " + fld.getName() + " value", e); //$NON-NLS-1$ //$NON-NLS-2$
+		} finally {
+			fld.setAccessible(access);
 		}
 	}
 	
@@ -141,8 +140,61 @@ public final class ReflectUtils {
 		return null;
 	}
 	
+	public static Method findBestMethod(Class clazz, String name, Class[] types) {
+		Method bestMatch = null;
+		Integer bestMatchValue = null;
+		
+		for(Method method : methodsIterable(clazz)) {
+			if(! method.getName().equals(name)) {
+				continue;
+			}
+			
+			Integer matchValue = matchValue(method.getParameterTypes(), types);
+			if(matchValue == null) {
+				continue;
+			}
+			
+			if(bestMatchValue == null) {
+				bestMatch = method;
+				bestMatchValue = matchValue;
+				continue;
+			}
+			
+			if(matchValue < bestMatchValue) {
+				continue;
+			}
+			
+			bestMatch = method;
+			bestMatchValue = matchValue;
+		}
+		
+		return bestMatch;
+	}
+	
+	private static Integer matchValue(Class[] to, Class[] types) {
+		if(to.length != types.length) {
+			return null;
+		}
+		
+		int value = 0;
+		for(int i = 0, n = to.length;i < n;i++) {
+			if(! to[i].isAssignableFrom(types[i])) {
+				return null;
+			}
+			
+			if(to[i].equals(types[i])) {
+				value += 2;
+			}
+			
+			value += 1;
+		}
+		
+		return value;
+	}
+	
 	public static Object executeMethod(Object obj, Method method, Object... params) {
-		if(! method.isAccessible()) {
+		boolean access = method.isAccessible();
+		if(! access) {
 			method.setAccessible(true);
 		}
 		
@@ -150,6 +202,10 @@ public final class ReflectUtils {
 			return method.invoke(obj, params);
 		} catch(Exception exc) {
 			throw new ReflectUtilsException("Unable to execute method " + method.getName(), exc); //$NON-NLS-1$
+		} finally {
+			if(! access) {
+				method.setAccessible(access);
+			}
 		}
 	}
 	
@@ -161,30 +217,6 @@ public final class ReflectUtils {
 		}
 	}
 	
-	private static List<Method> findMethodsByName(Class clazz, final String methodName) {
-		final List<Method> methods = new ArrayList<Method>();
-		executeOnHierarchy(clazz, new Predicate1<Class>() {
-			public Boolean execute(Class p) {
-				Method[] localMethods = ArrayUtils.filter(p.getMethods(), new Predicate1<Method>() {
-					public Boolean execute(Method p) {
-						return p.getName().equals(methodName);
-					}});
-				methods.addAll(ListUtils.asList(localMethods));
-				
-				return Boolean.TRUE;
-			}});
-		
-		return methods;
-	}
-	
-	private static void executeOnHierarchy(Class clazz, Predicate1<Class> functor) {
-		for (; clazz != null; clazz = clazz.getSuperclass()) {
-			if(! functor.execute(clazz)) {
-				break;
-			}
-		}
-	}
-	
 	public static Class resolveClass(String name) {
 		try {
 			return Class.forName(name);
@@ -192,13 +224,162 @@ public final class ReflectUtils {
 			throw new RuntimeException(exc);
 		}
 	}
-	
+		
 	public static List<Class> loadHierarchy(Class clazz) {
-		List<Class> result = new ArrayList<Class>();
-		for(Class temp = clazz; temp != null; temp = temp.getSuperclass()) {
-			result.add(temp);
-		}
+		List<Class> result = ListUtils.asList(hierarchyIterator(clazz));
 		Collections.reverse(result);
 		return result;
+	}
+	
+	public static Iterable<Class> hierarchyIterable(final Class clazzParam) {
+		return new Iterable<Class>() {
+			@Override
+			public Iterator<Class> iterator() {
+				return hierarchyIterator(clazzParam);
+			}};
+	}
+	
+	public static Iterable<Class> hierarchyIterable(final Class clazzParam, final Class limit) {
+		return new Iterable<Class>() {
+			@Override
+			public Iterator<Class> iterator() {
+				return hierarchyIterator(clazzParam, limit);
+			}};
+	}
+	
+	public static Iterator<Class> hierarchyIterator(final Class clazzParam) {
+		return hierarchyIterator(clazzParam, null);
+	}
+	
+	public static Iterator<Class> hierarchyIterator(final Class clazzParam, final Class limit) {
+		return new Iterator<Class>() {
+			private Class clazz = clazzParam;
+			
+			@Override
+			public boolean hasNext() {
+				return clazz != limit;
+			}
+
+			@Override
+			public Class next() {
+				Class temp = clazz;
+				clazz = clazz.getSuperclass();
+				return temp;
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException("It is not possible to modify class on runtime");
+			}};
+	}
+	
+	public static Iterable<Field> fieldsIterable(final Class clazzParam) {
+		return new Iterable<Field>() {
+			@Override
+			public Iterator<Field> iterator() {
+				return fieldsIterator(clazzParam);
+			}};
+	}
+	
+	public static Iterable<Field> fieldsIterable(final Class clazzParam, final Class limit) {
+		return new Iterable<Field>() {
+			@Override
+			public Iterator<Field> iterator() {
+				return fieldsIterator(clazzParam, limit);
+			}};
+	}
+	
+	public static Iterator<Field> fieldsIterator(final Class clazzParam) {
+		return fieldsIterator(clazzParam, null);
+	}
+	
+	public static Iterator<Field> fieldsIterator(final Class clazzParam, final Class limit) {
+		return new OnClassIterator<Field>(clazzParam, limit, new Function1<Field[], Class>() {
+			@Override
+			public Field[] execute(Class p) {
+				return p.getDeclaredFields();
+			}});
+	}
+
+	public static Iterable<Method> methodsIterable(final Class clazzParam) {
+		return new Iterable<Method>() {
+			@Override
+			public Iterator<Method> iterator() {
+				return methodsIterator(clazzParam);
+			}};
+	}
+	
+	public static Iterable<Method> methodsIterable(final Class clazzParam, final Class limit) {
+		return new Iterable<Method>() {
+			@Override
+			public Iterator<Method> iterator() {
+				return methodsIterator(clazzParam, limit);
+			}};
+	}
+	
+	public static Iterator<Method> methodsIterator(final Class clazzParam) {
+		return methodsIterator(clazzParam, null);
+	}
+	
+	public static Iterator<Method> methodsIterator(final Class clazzParam, final Class limit) {
+		return new OnClassIterator<Method>(clazzParam, limit, new Function1<Method[], Class>() {
+			@Override
+			public Method[] execute(Class p) {
+				return p.getDeclaredMethods();
+			}});
+	}
+	
+	private static class OnClassIterator<T> implements Iterator<T> {
+		private Class clazz;
+		private Class limit;
+		private Function1<T[], Class> accessor;
+		
+		private T[] contents;
+		private int contentsIndex = 0;
+		
+		public OnClassIterator(Class clazzParam, Class limitParam, Function1<T[], Class> accessorParam) {
+			clazz = clazzParam;
+			limit = limitParam;
+			
+			accessor = accessorParam;
+			
+			contents = accessor.execute(clazz);
+		}
+		
+		@Override
+		public boolean hasNext() {
+			if(contents.length > contentsIndex) {
+				return true;
+			}
+			
+			contentsIndex = 0;
+			while(clazz != limit) {
+				clazz = clazz.getSuperclass();
+				if(clazz == null) {
+					break;
+				}
+				
+				contents = accessor.execute(clazz);
+				if(contents.length != 0) {
+					break;
+				}
+			}
+			
+			if(clazz == limit) {
+				return false;
+			}
+			
+			return true;
+		}
+
+		@Override
+		public T next() {
+			return contents[contentsIndex++];
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException("It is not possible to modify class on runtime");
+		}
 	}
 }

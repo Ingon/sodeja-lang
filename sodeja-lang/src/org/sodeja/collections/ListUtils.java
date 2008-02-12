@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -12,9 +13,6 @@ import org.sodeja.functional.Function2;
 import org.sodeja.functional.IdentityFunction;
 import org.sodeja.functional.Predicate1;
 import org.sodeja.functional.Predicate2;
-
-import com.sun.org.apache.bcel.internal.generic.FNEG;
-
 
 public final class ListUtils {
     private ListUtils() {
@@ -40,6 +38,14 @@ public final class ListUtils {
         List<T> result = new ArrayList<T>();
         Collections.addAll(result, objects);
         return result;
+    }
+    
+    public static <T> List<T> asList(Iterator<T> ite) {
+    	List<T> result = new ArrayList<T>();
+    	while(ite.hasNext()) {
+    		result.add(ite.next());
+    	}
+    	return result;
     }
     
     public static <T> T[] asArray(List<T> data) {
