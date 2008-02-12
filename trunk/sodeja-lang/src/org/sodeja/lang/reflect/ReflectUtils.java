@@ -19,14 +19,23 @@ public final class ReflectUtils {
     public static final Object[] EMPTY_PARAMETERS = new Object[0];
     
     public static Object getUsingMethod(Object obj, String fieldName) {
-        String methodName = "get" + StringUtils.capitalizeFirst(fieldName); //$NON-NLS-1$
+    	Field fld = findFieldInHierarchy(obj, fieldName);
+    	
+    	String methodName = StringUtils.capitalizeFirst(fieldName);
+    	if(fld.getType() == Boolean.class || fld.getType() == boolean.class) {
+    		methodName = "is" + methodName;
+    	} else {
+    		methodName = "get" + methodName;
+    	}
+    	
         Method method = findMethodInHierarchy(obj, methodName, EMPTY_TYPES);
         return executeMethod(obj, method, EMPTY_PARAMETERS);
     }
     
     public static Object setUsingMethod(Object obj, String fieldName, Object newValue) {
+    	Field fld = findFieldInHierarchy(obj, fieldName);
         String methodName = "set" + StringUtils.capitalizeFirst(fieldName); //$NON-NLS-1$
-        Method method = findMethodInHierarchy(obj, methodName, new Class[] {newValue.getClass()});
+        Method method = findBestMethod(obj.getClass(), methodName, new Class[] {fld.getType()});
         return executeMethod(obj, method, new Object[] {newValue});
     }
 
@@ -51,8 +60,7 @@ public final class ReflectUtils {
 			}
 		}
 
-		throw new ReflectUtilsException(
-				"Was unable to find required field"); //$NON-NLS-1$
+		throw new ReflectUtilsException("Was unable to find required field"); //$NON-NLS-1$
 	}
 
 	public static Object getFieldValue(Object obj, Field fld) {
@@ -104,7 +112,7 @@ public final class ReflectUtils {
 			return null;
 		}
 
-		for (Class clazz = obj.getClass(); clazz != null; clazz = clazz.getSuperclass()) {
+		for (Class clazz : hierarchyIterable(obj.getClass())) {
 			Method method = findLocalMethodImpl(clazz, methodName, types);
 			if(method == null) {
 				continue;
@@ -178,18 +186,65 @@ public final class ReflectUtils {
 		
 		int value = 0;
 		for(int i = 0, n = to.length;i < n;i++) {
-			if(! to[i].isAssignableFrom(types[i])) {
+			if(to[i] == types[i]) {
+				value += 3;
+				continue;
+			}
+			
+			if(types[i] == null) {
+				continue;
+			}
+			
+			if(to[i].isPrimitive() && !types[i].isPrimitive()) {
+				Class toWrap = getWrapperClass(to[i]);
+				if(toWrap.equals(types[i])) {
+					value += 2;
+					continue;
+				}
+				
 				return null;
 			}
 			
-			if(to[i].equals(types[i])) {
-				value += 2;
+			if(! to[i].isPrimitive() && types[i].isPrimitive()) {
+				Class typeWrap = getWrapperClass(types[i]);
+				if(! to[i].isAssignableFrom(typeWrap)) {
+					return null;
+				}
+				
+				value += 1;
+				continue;
+			}
+			
+			if(! to[i].isAssignableFrom(types[i])) {
+				return null;
 			}
 			
 			value += 1;
 		}
 		
 		return value;
+	}
+	
+	private static Class getWrapperClass(Class primitive) {
+		if(primitive == byte.class) {
+			return Byte.class;
+		} else if(primitive == short.class) {
+			return Short.class;
+		} else if(primitive == int.class) {
+			return Integer.class;
+		} else if(primitive == long.class) {
+			return Long.class;
+		} else if(primitive == float.class) {
+			return Float.class;
+		} else if(primitive == double.class) {
+			return Double.class;
+		} else if(primitive == boolean.class) {
+			return Boolean.class;
+		} else if(primitive == char.class) {
+			return Character.class;
+		}
+		
+		return primitive;
 	}
 	
 	public static Object executeMethod(Object obj, Method method, Object... params) {
@@ -252,25 +307,11 @@ public final class ReflectUtils {
 	}
 	
 	public static Iterator<Class> hierarchyIterator(final Class clazzParam, final Class limit) {
-		return new Iterator<Class>() {
-			private Class clazz = clazzParam;
-			
+		return new OnClassIterator<Class>(clazzParam, limit, new Function1<Class[], Class>() {
 			@Override
-			public boolean hasNext() {
-				return clazz != limit;
-			}
-
-			@Override
-			public Class next() {
-				Class temp = clazz;
-				clazz = clazz.getSuperclass();
-				return temp;
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException("It is not possible to modify class on runtime");
-			}};
+			public Class[] execute(Class p) {
+				return new Class[] {p};
+			}});
 	}
 	
 	public static Iterable<Field> fieldsIterable(final Class clazzParam) {

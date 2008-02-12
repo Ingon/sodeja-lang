@@ -13,6 +13,36 @@ import javax.swing.JFrame;
 import junit.framework.TestCase;
 
 public class ReflectUtilsTest extends TestCase {
+	public void testFieldAccess() {
+		T2 val = new T2();
+		val.setVal1("alabala");
+		val.setVal2(true);
+		
+		assertEquals("alabala", ReflectUtils.getFieldValue(val, "val1"));
+		assertEquals(true, ReflectUtils.getFieldValue(val, "val2"));
+		
+		assertEquals("alabala", ReflectUtils.getUsingMethod(val, "val1"));
+		assertEquals(true, ReflectUtils.getUsingMethod(val, "val2"));
+		
+		ReflectUtils.setFieldValue(val, "val1", "al");
+		ReflectUtils.setFieldValue(val, "val2", false);
+
+		assertEquals("al", ReflectUtils.getFieldValue(val, "val1"));
+		assertEquals(false, ReflectUtils.getFieldValue(val, "val2"));
+		
+		assertEquals("al", ReflectUtils.getUsingMethod(val, "val1"));
+		assertEquals(false, ReflectUtils.getUsingMethod(val, "val2"));
+
+		ReflectUtils.setUsingMethod(val, "val1", "al1");
+		ReflectUtils.setUsingMethod(val, "val2", true);
+
+		assertEquals("al1", ReflectUtils.getFieldValue(val, "val1"));
+		assertEquals(true, ReflectUtils.getFieldValue(val, "val2"));
+		
+		assertEquals("al1", ReflectUtils.getUsingMethod(val, "val1"));
+		assertEquals(true, ReflectUtils.getUsingMethod(val, "val2"));
+	}
+	
 	public void testHierarchyIterator() {
 		System.out.println("THI: Limitless");
 		for(Class clazz : ReflectUtils.hierarchyIterable(JFrame.class)) {
@@ -37,7 +67,7 @@ public class ReflectUtilsTest extends TestCase {
 		}
 	}
 	
-	public void testFindBestMatch() {
+	public void testFindBestMethod() {
 		Method method = ReflectUtils.findBestMethod(Component.class, "addFocusListener", new Class[] {FocusListener.class});
 		System.out.println("Method: " + method);
 		
@@ -52,6 +82,15 @@ public class ReflectUtilsTest extends TestCase {
 
 		method = ReflectUtils.findBestMethod(T1.class, "add", new Class[] {Integer.class, Integer.class});
 		System.out.println("Method: " + method);
+
+		method = ReflectUtils.findBestMethod(T1.class, "add", new Class[] {null, Integer.class});
+		System.out.println("Method: " + method);
+		
+		method = ReflectUtils.findBestMethod(T1.class, "add", new Class[] {int.class});
+		System.out.println("Method: " + method);
+
+		method = ReflectUtils.findBestMethod(T1.class, "add", new Class[] {double.class});
+		System.out.println("Method: " + method);
 	}
 	
 	private static class TempFocusListener implements FocusListener {
@@ -65,6 +104,9 @@ public class ReflectUtilsTest extends TestCase {
 	}
 	
 	private static class T1 {
+		public void add(int a) {
+		}
+		
 		public void add(Number a) {
 		}
 		
@@ -75,6 +117,27 @@ public class ReflectUtilsTest extends TestCase {
 		}
 		
 		public void add(Integer a, Number b) {
+		}
+	}
+	
+	private static class T2 {
+		private String val1;
+		private boolean val2;
+		
+		public String getVal1() {
+			return val1;
+		}
+		
+		public void setVal1(String val1) {
+			this.val1 = val1;
+		}
+		
+		public boolean isVal2() {
+			return val2;
+		}
+		
+		public void setVal2(boolean val2) {
+			this.val2 = val2;
 		}
 	}
 }
