@@ -9,6 +9,40 @@ public class IteratorUtils {
 	private IteratorUtils() {
 	}
 	
+	public static <P> Iterable<P> wrapToIterable(final Iterator<P> ite) {
+		return new Iterable<P>() {
+			@Override
+			public Iterator<P> iterator() {
+				return ite;
+			}};
+	}
+	
+	public static <P> Iterable<P> emptyIterable() {
+		Iterator<P> ite = emptyIterator();
+		return wrapToIterable(ite);
+	}
+	
+	private static final Iterator EMPTY_ITERATOR = new Iterator() {
+		@Override
+		public boolean hasNext() {
+			return false;
+		}
+
+		@Override
+		public Object next() {
+			throw new NoSuchElementException();
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	};
+	
+	public static <P> Iterator<P> emptyIterator() {
+		return EMPTY_ITERATOR;
+	}
+	
 	public static <P, R> Iterator<R> apply(final Iterator<P> orig, final Function1<R, P> functor) {
 		return new Iterator<R>() {
 			@Override
