@@ -20,7 +20,7 @@ public class ListUtilsTest extends TestCase {
 		List<Integer> expected = ListUtils.asList(2, 4, 6);
 		
 		List<Integer> prepare = ListUtils.asList(1, 2, 3);
-		List<Integer> actual = ListUtils.collectItems(prepare, new Function1<Integer, Integer>() {
+		List<Integer> actual = ListUtils.map(prepare, new Function1<Integer, Integer>() {
 			public Integer execute(Integer p) {
 				return p * 2;
 			}});

@@ -1,5 +1,6 @@
 package org.sodeja.collections;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -22,25 +23,8 @@ public class IteratorUtils {
 		return wrapToIterable(ite);
 	}
 	
-	private static final Iterator EMPTY_ITERATOR = new Iterator() {
-		@Override
-		public boolean hasNext() {
-			return false;
-		}
-
-		@Override
-		public Object next() {
-			throw new NoSuchElementException();
-		}
-
-		@Override
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
-	};
-	
 	public static <P> Iterator<P> emptyIterator() {
-		return EMPTY_ITERATOR;
+		return Collections.<P>emptyList().iterator();
 	}
 	
 	public static <P, R> Iterator<R> apply(final Iterator<P> orig, final Function1<R, P> functor) {

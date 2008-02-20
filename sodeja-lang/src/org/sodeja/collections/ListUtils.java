@@ -131,12 +131,6 @@ public final class ListUtils {
     	list.add(obj);
     	return list.size() - 1;
     }
-
-	public static <T, R> List<R> collectItems(List<T> source, Function1<R, T> closure) {
-		List<R> result = new ArrayList<R>();
-		CollectionUtils.map(source, result, closure);
-		return result;
-	}
 	
 	public static <R, P> R foldr(List<P> source, R initial, Function2<R, P, R> functor) {
 		R result = initial;
@@ -193,8 +187,11 @@ public final class ListUtils {
 	}
 	
 	public static <T> double average(List<T> list, final Function1<Integer, T> closure) {
-		int total = sum(list, closure);
-		return total/list.size();
+		if(list.size() == 0) {
+			return 0;
+		}
+		
+		return (double) sum(list, closure) / list.size();
 	}
 	
 	public static <T> List<T> flattern(List<List<T>> list) {
