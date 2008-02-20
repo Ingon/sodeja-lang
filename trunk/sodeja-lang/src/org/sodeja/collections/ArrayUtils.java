@@ -151,12 +151,12 @@ public final class ArrayUtils {
 				return StringUtils.nonNullValue(p);
 			}});
     	StringBuilder builder = new StringBuilder();
-    	builder.append("["); //$NON-NLS-1$
+    	builder.append("[");
     	for(String str : vals) {
-    		builder.append(str + ", "); //$NON-NLS-1$
+    		builder.append(str + ", ");
     	}
     	builder.setLength(builder.length() - 2);
-    	builder.append("]"); //$NON-NLS-1$
+    	builder.append("]");
     	return builder.toString();
     }
 }

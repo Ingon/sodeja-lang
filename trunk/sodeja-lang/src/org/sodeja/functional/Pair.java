@@ -19,7 +19,7 @@ public class Pair<First, Second> {
 
 	@Override
 	public boolean equals(Object obj) {
-	   	return obj instanceof Pair && equals(first, ((Pair) obj).first) && equals(second, ((Pair) obj).second);
+	   	return obj instanceof Pair && equals(first, ((Pair<?, ?>) obj).first) && equals(second, ((Pair<?, ?>) obj).second);
 	}
 
     static boolean equals(Object x, Object y) {

@@ -15,7 +15,7 @@ public final class ReflectUtils {
 	private ReflectUtils() {
 	}
 	
-    public static final Class[] EMPTY_TYPES = new Class[0];
+    public static final Class<?>[] EMPTY_TYPES = new Class[0];
     public static final Object[] EMPTY_PARAMETERS = new Object[0];
     
     public static Object getUsingMethod(Object obj, String fieldName) {
@@ -93,26 +93,26 @@ public final class ReflectUtils {
 		}
 	}
 	
-	public static Object executeMethod(Object obj, String methodName, Class[] paramTypes, Object[] params) {
+	public static Object executeMethod(Object obj, String methodName, Class<?>[] paramTypes, Object[] params) {
 		Method method = findMethodInHierarchy(obj, methodName, paramTypes);
 		return executeMethod(obj, method, params);
 	}
 	
 	public static Object executeMethod(Object obj, String methodName, Object[] params) {
-		Class[] paramTypes = ArrayUtils.map(params, new Function1<Class, Object>() {
-			public Class execute(Object p) {
+		Class<?>[] paramTypes = ArrayUtils.map(params, new Function1<Class<?>, Object>() {
+			public Class<?> execute(Object p) {
 				return p.getClass();
 			}});
 		
 		return executeMethod(obj, methodName, paramTypes, params);
 	}
 	
-	public static Method findMethodInHierarchy(Object obj, String methodName, Class... types) {
+	public static Method findMethodInHierarchy(Object obj, String methodName, Class<?>... types) {
 		if (obj == null) {
 			return null;
 		}
 
-		for (Class clazz : hierarchyIterable(obj.getClass())) {
+		for (Class<?> clazz : hierarchyIterable(obj.getClass())) {
 			Method method = findLocalMethodImpl(clazz, methodName, types);
 			if(method == null) {
 				continue;
@@ -124,7 +124,7 @@ public final class ReflectUtils {
 		throw new ReflectUtilsException("Was unable to find <" + methodName + "> method in <" + obj.getClass() + ">: "); //$NON-NLS-1$
 	}
 	
-	public static Method findLocalMethod(Class clazz, String methodName, Class... types) {
+	public static Method findLocalMethod(Class<?> clazz, String methodName, Class<?>... types) {
 		Method method = findLocalMethodImpl(clazz, methodName, types);
 		
 		if(method == null) {
@@ -134,7 +134,7 @@ public final class ReflectUtils {
 		return method;
 	}
 	
-	private static Method findLocalMethodImpl(Class clazz, String methodName, Class... types) {
+	private static Method findLocalMethodImpl(Class<?> clazz, String methodName, Class<?>... types) {
 		try {
 			return clazz.getMethod(methodName, types);
 		} catch (Exception e) {
@@ -148,7 +148,7 @@ public final class ReflectUtils {
 		return null;
 	}
 	
-	public static Method findBestMethod(Class clazz, String name, Class[] types) {
+	public static Method findBestMethod(Class<?> clazz, String name, Class<?>[] types) {
 		Method bestMatch = null;
 		Integer bestMatchValue = null;
 		
@@ -179,7 +179,7 @@ public final class ReflectUtils {
 		return bestMatch;
 	}
 	
-	private static Integer matchValue(Class[] to, Class[] types) {
+	private static Integer matchValue(Class<?>[] to, Class<?>[] types) {
 		if(to.length != types.length) {
 			return null;
 		}
@@ -196,7 +196,7 @@ public final class ReflectUtils {
 			}
 			
 			if(to[i].isPrimitive() && !types[i].isPrimitive()) {
-				Class toWrap = getWrapperClass(to[i]);
+				Class<?> toWrap = getWrapperClass(to[i]);
 				if(toWrap.equals(types[i])) {
 					value += 2;
 					continue;
@@ -206,7 +206,7 @@ public final class ReflectUtils {
 			}
 			
 			if(! to[i].isPrimitive() && types[i].isPrimitive()) {
-				Class typeWrap = getWrapperClass(types[i]);
+				Class<?> typeWrap = getWrapperClass(types[i]);
 				if(! to[i].isAssignableFrom(typeWrap)) {
 					return null;
 				}
@@ -225,7 +225,7 @@ public final class ReflectUtils {
 		return value;
 	}
 	
-	private static Class getWrapperClass(Class primitive) {
+	private static Class<?> getWrapperClass(Class<?> primitive) {
 		if(primitive == byte.class) {
 			return Byte.class;
 		} else if(primitive == short.class) {
@@ -272,7 +272,7 @@ public final class ReflectUtils {
 		}
 	}
 	
-	public static Class resolveClass(String name) {
+	public static Class<?> resolveClass(String name) {
 		try {
 			return Class.forName(name);
 		} catch(Exception exc) {
@@ -280,13 +280,13 @@ public final class ReflectUtils {
 		}
 	}
 		
-	public static List<Class> loadHierarchy(Class clazz) {
+	public static List<Class> loadHierarchy(Class<?> clazz) {
 		List<Class> result = ListUtils.asList(hierarchyIterator(clazz));
 		Collections.reverse(result);
 		return result;
 	}
 	
-	public static Iterable<Class> hierarchyIterable(final Class clazzParam) {
+	public static Iterable<Class> hierarchyIterable(final Class<?> clazzParam) {
 		return new Iterable<Class>() {
 			@Override
 			public Iterator<Class> iterator() {
@@ -294,7 +294,7 @@ public final class ReflectUtils {
 			}};
 	}
 	
-	public static Iterable<Class> hierarchyIterable(final Class clazzParam, final Class limit) {
+	public static Iterable<Class> hierarchyIterable(final Class<?> clazzParam, final Class<?> limit) {
 		return new Iterable<Class>() {
 			@Override
 			public Iterator<Class> iterator() {
@@ -314,7 +314,7 @@ public final class ReflectUtils {
 			}});
 	}
 	
-	public static Iterable<Field> fieldsIterable(final Class clazzParam) {
+	public static Iterable<Field> fieldsIterable(final Class<?> clazzParam) {
 		return new Iterable<Field>() {
 			@Override
 			public Iterator<Field> iterator() {
@@ -322,7 +322,7 @@ public final class ReflectUtils {
 			}};
 	}
 	
-	public static Iterable<Field> fieldsIterable(final Class clazzParam, final Class limit) {
+	public static Iterable<Field> fieldsIterable(final Class<?> clazzParam, final Class<?> limit) {
 		return new Iterable<Field>() {
 			@Override
 			public Iterator<Field> iterator() {
@@ -330,11 +330,11 @@ public final class ReflectUtils {
 			}};
 	}
 	
-	public static Iterator<Field> fieldsIterator(final Class clazzParam) {
+	public static Iterator<Field> fieldsIterator(final Class<?> clazzParam) {
 		return fieldsIterator(clazzParam, null);
 	}
 	
-	public static Iterator<Field> fieldsIterator(final Class clazzParam, final Class limit) {
+	public static Iterator<Field> fieldsIterator(final Class<?> clazzParam, final Class<?> limit) {
 		return new OnClassIterator<Field>(clazzParam, limit, new Function1<Field[], Class>() {
 			@Override
 			public Field[] execute(Class p) {
@@ -342,7 +342,7 @@ public final class ReflectUtils {
 			}});
 	}
 
-	public static Iterable<Method> methodsIterable(final Class clazzParam) {
+	public static Iterable<Method> methodsIterable(final Class<?> clazzParam) {
 		return new Iterable<Method>() {
 			@Override
 			public Iterator<Method> iterator() {
@@ -350,7 +350,7 @@ public final class ReflectUtils {
 			}};
 	}
 	
-	public static Iterable<Method> methodsIterable(final Class clazzParam, final Class limit) {
+	public static Iterable<Method> methodsIterable(final Class<?> clazzParam, final Class<?> limit) {
 		return new Iterable<Method>() {
 			@Override
 			public Iterator<Method> iterator() {
@@ -358,11 +358,11 @@ public final class ReflectUtils {
 			}};
 	}
 	
-	public static Iterator<Method> methodsIterator(final Class clazzParam) {
+	public static Iterator<Method> methodsIterator(final Class<?> clazzParam) {
 		return methodsIterator(clazzParam, null);
 	}
 	
-	public static Iterator<Method> methodsIterator(final Class clazzParam, final Class limit) {
+	public static Iterator<Method> methodsIterator(final Class<?> clazzParam, final Class<?> limit) {
 		return new OnClassIterator<Method>(clazzParam, limit, new Function1<Method[], Class>() {
 			@Override
 			public Method[] execute(Class p) {
@@ -371,14 +371,14 @@ public final class ReflectUtils {
 	}
 	
 	private static class OnClassIterator<T> implements Iterator<T> {
-		private Class clazz;
-		private Class limit;
+		private Class<?> clazz;
+		private Class<?> limit;
 		private Function1<T[], Class> accessor;
 		
 		private T[] contents;
 		private int contentsIndex = 0;
 		
-		public OnClassIterator(Class clazzParam, Class limitParam, Function1<T[], Class> accessorParam) {
+		public OnClassIterator(Class<?> clazzParam, Class<?> limitParam, Function1<T[], Class> accessorParam) {
 			clazz = clazzParam;
 			limit = limitParam;
 			

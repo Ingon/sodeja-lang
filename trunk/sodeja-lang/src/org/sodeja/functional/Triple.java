@@ -20,9 +20,9 @@ public class Triple<First, Second, Third> extends Pair<First, Second>{
 	@Override
 	public boolean equals(Object obj) {
 	   	return obj instanceof Triple 
-	   		&& equals(first, ((Triple) obj).first) 
-	   		&& equals(second, ((Triple) obj).second)
-	   		&& equals(third, ((Triple) obj).third);
+	   		&& equals(first, ((Triple<?, ?, ?>) obj).first) 
+	   		&& equals(second, ((Triple<?, ?, ?>) obj).second)
+	   		&& equals(third, ((Triple<?, ?, ?>) obj).third);
 	}	
 	@Override
 	public String toString() {
