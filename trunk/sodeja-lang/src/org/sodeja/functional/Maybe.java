@@ -35,6 +35,10 @@ public abstract class Maybe<T> {
 	public abstract T value();
 	
 	public abstract boolean hasValue();
+
+	public boolean isEmpty() {
+		return ! hasValue();
+	}
 	
 	public static <T> Maybe<T> just(T value) {
 		return new Just<T>(value);
