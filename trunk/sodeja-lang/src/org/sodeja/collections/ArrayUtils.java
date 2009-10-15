@@ -67,6 +67,15 @@ public final class ArrayUtils {
 				return tempResult & functor.execute(object);
 			}});
 	}
+
+    public static <T> T find(T[] source, Predicate1<T> functor) {
+        for (T t : source) {
+            if (functor.execute(t)) {
+                return t;
+            }
+        }
+        return null;
+    }
 	
 	public static <T> T[] append(T value, T[] source) {
 		T[] result = (T[]) Array.newInstance(value.getClass(), source.length + 1);
