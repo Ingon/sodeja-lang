@@ -141,11 +141,7 @@ public final class ListUtils {
 	}
 	
 	public static <R, P> R foldl(List<P> source, R initial, Function2<R, R, P> functor) {
-		R result = initial;
-		for(int i = 0;i < source.size();i++) {
-			result = functor.execute(result, source.get(i));
-		}
-		return result;
+		return CollectionUtils.foldl(source, initial, functor);
 	}
 	
 	public static <R, P> Map<R, List<P>> groupBy(List<P> source, final Function1<R, P> functor) {
