@@ -1,8 +1,13 @@
 package org.sodeja.collections;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.sodeja.functional.Function1;
+import org.sodeja.functional.Function2;
 import org.sodeja.functional.Predicate1;
 
 
@@ -70,7 +75,7 @@ public final class CollectionUtils {
         return false;
     }
     
-    public static <T> void execute(Collection<T> collection, Function1<Void, T> functor) {
+    public static <T> void execute(Iterable<T> collection, Function1<Void, T> functor) {
     	if(collection == null) {
     		return;
     	}
@@ -82,4 +87,43 @@ public final class CollectionUtils {
     public static <T> boolean isEmpty(Collection<T> collection) {
     	return collection == null || collection.isEmpty();
     }
+
+	public static <R, P> R foldl(Iterable<P> source, R initial, Function2<R, R, P> functor) {
+		R result = initial;
+		for(P item : source) {
+			result = functor.execute(result, item);
+		}
+		return result;
+	}
+
+	public static <T> int sumInt(Iterable<T> source, final Function1<Integer, T> closure) {
+		return foldl(source, 0, new Function2<Integer, Integer, T>() {
+			public Integer execute(Integer p1, T p2) {
+				return p1 + closure.execute(p2);
+			}});
+	}
+
+	public static <T> double sumDouble(Iterable<T> source, final Function1<Double, T> closure) {
+		return foldl(source, 0.0, new Function2<Double, Double, T>() {
+			public Double execute(Double p1, T p2) {
+				return p1 + closure.execute(p2);
+			}});
+	}
+
+	public static <R, P> Map<R, List<P>> groupBy(Iterable<P> source, final Function1<R, P> functor) {
+		final Map<R, List<P>> groups = new HashMap<R, List<P>>();
+		execute(source, new Function1<Void, P>() {
+			@Override
+			public Void execute(P p) {
+				R val = functor.execute(p);
+				List<P> group = groups.get(val);
+				if(group == null) {
+					group = new ArrayList<P>();
+					groups.put(val, group);
+				}
+				group.add(p);
+				return null;
+			}});
+		return groups;
+	}
 }
