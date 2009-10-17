@@ -14,7 +14,7 @@ public final class SetUtils {
         return (Set<R>) CollectionUtils.map(set, new HashSet<R>(), functor);
     }
     
-    public static <T> Set<T> fromArray(T... array) {
+    public static <T> Set<T> asSet(T... array) {
         Set<T> result = new HashSet<T>();
         Collections.addAll(result, array);
         return result;
