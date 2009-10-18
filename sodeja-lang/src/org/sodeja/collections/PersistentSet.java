@@ -1,11 +1,12 @@
 package org.sodeja.collections;
 
+import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
-public class PersistentSet<E> implements Set<E> {
+public class PersistentSet<E> extends AbstractSet<E> {
 	private final PersistentMap<E, Object> backend;
+	private static final Object INTERNAL_VALUE = new Object();
 	
 	public PersistentSet() {
 		this.backend = new PersistentMap<E, Object>();
@@ -16,67 +17,29 @@ public class PersistentSet<E> implements Set<E> {
 	}
 	
 	@Override
-	public boolean add(E e) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean addAll(Collection<? extends E> c) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void clear() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean contains(Object o) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean containsAll(Collection<?> c) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean isEmpty() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public Iterator<E> iterator() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean remove(Object o) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean removeAll(Collection<?> c) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean retainAll(Collection<?> c) {
-		throw new UnsupportedOperationException();
+		return backend.keySet().iterator();
 	}
 
 	@Override
 	public int size() {
-		throw new UnsupportedOperationException();
+		return backend.size();
 	}
 
-	@Override
-	public Object[] toArray() {
-		throw new UnsupportedOperationException();
+	public PersistentSet<E> addValue(E e) {
+		return new PersistentSet<E>(backend.putValue(e, INTERNAL_VALUE));
 	}
 
-	@Override
-	public <T> T[] toArray(T[] a) {
-		throw new UnsupportedOperationException();
+	// TODO innefective
+	public PersistentSet<E> addAllValues(Collection<E> values) {
+		PersistentMap<E, Object> c = backend;
+		for(E e : values) {
+			c = c.putValue(e, INTERNAL_VALUE);
+		}
+		return new PersistentSet<E>(c);
+	}
+	
+	public PersistentSet<E> removeValue(E e) {
+		return new PersistentSet<E>(backend.removeValue(e));
 	}
 }

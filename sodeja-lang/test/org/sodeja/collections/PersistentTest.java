@@ -1,6 +1,7 @@
 package org.sodeja.collections;
 
-import junit.framework.TestCase;
+import java.util.Map;
+
 
 public class PersistentTest {
 	public static void testGet() {
@@ -18,10 +19,13 @@ public class PersistentTest {
 	}
 
 	public static void testMulty() {
-		PersistentMap<String, String>[] maps = new PersistentMap[10000];
+		PersistentMap<String, String>[] maps = new PersistentMap[1000];
 		maps[0] = new PersistentMap<String, String>();
 		for(int i = 1;i < maps.length; i++) {
 			maps[i] = maps[i - 1].putValue("a" + i, "b" + i);
+			if(maps[i].size() != i) {
+				System.out.println("Wrong size on: " + i);
+			}
 		}
 		
 		for(int i = 1; i < maps.length; i++) {
@@ -47,5 +51,24 @@ public class PersistentTest {
 	
 	public static void main(String[] args) {
 		testMulty();
+//		testIterator();
+	}
+
+	private static void testIterator() {
+		PersistentMap<String, String>[] maps = new PersistentMap[30];
+		maps[0] = new PersistentMap<String, String>();
+		for(int i = 1;i < maps.length; i++) {
+			maps[i] = maps[i - 1].putValue("a" + i, "b" + i);
+		}
+
+		int sz = 0;
+		PersistentMap<String, String> last = maps[maps.length - 1];
+		for(Map.Entry<String, String> e : last.entrySet()) {
+			sz++;
+			System.out.println("K: " + e.getKey() + " E: " + e.getValue());
+		}
+		if(sz != maps.length - 1) {
+			System.out.println("NOT SAME");
+		}
 	}
 }

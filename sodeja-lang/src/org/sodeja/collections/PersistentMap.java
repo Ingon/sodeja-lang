@@ -1,10 +1,14 @@
 package org.sodeja.collections;
 
+import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.sodeja.functional.Pair;
@@ -48,16 +52,46 @@ public class PersistentMap<K, V> implements Map<K, V> {
 		public LevelData(LevelInfo info) {
 			data = new Object[info.size()];
 		}
+		
+		public boolean isEmpty() {
+			for(int i = 0; i < data.length; i++) {
+				if(data[i] != null) {
+					return false;
+				}
+			}
+			
+			return true;
+		}
 	}
 	
 	private static class LevelPair<K, V> extends Pair<K, V> {
 		protected LevelPair(K first, V second) {
 			super(first, second);
 		}
+		
+		protected Entry<K, V> toEntry() {
+			return new Map.Entry<K, V>() {
+				@Override
+				public K getKey() {
+					return first;
+				}
+
+				@Override
+				public V getValue() {
+					return second;
+				}
+
+				@Override
+				public V setValue(V value) {
+					throw new UnsupportedOperationException();
+				}
+			};
+		}
 	}
 
 	private final LevelInfo[] infos;
 	private final LevelData root;
+	private final int size;
 
 	public PersistentMap() {
 		infos = new LevelInfo[8];
@@ -65,11 +99,13 @@ public class PersistentMap<K, V> implements Map<K, V> {
 			infos[i] = new LevelInfo(4, i * 4);
 		}
 		root = new LevelData(infos[0]);
+		size = 0;
 	}
 
-	private PersistentMap(LevelInfo[] infos, LevelData root) {
+	private PersistentMap(LevelInfo[] infos, LevelData root, int size) {
 		this.infos = infos;
 		this.root = root;
+		this.size = size;
 	}
 	
 	////////// Base
@@ -107,9 +143,14 @@ public class PersistentMap<K, V> implements Map<K, V> {
 	}
 	
 	public PersistentMap<K, V> putValue(K key, V value) {
+		if(value == null) {
+			return this;
+		}
+		
 		int hashCode = key.hashCode();
 		
 		LevelData newRoot = new LevelData(infos[0]);
+		int newSize = size + 1;
 		
 		LevelData oldCurr = root;
 		LevelData newCurr = newRoot;
@@ -135,6 +176,7 @@ public class PersistentMap<K, V> implements Map<K, V> {
 				LevelPair<K, V> p = (LevelPair<K, V>) oldData;
 				if(p.first.equals(key)) {
 					newCurr.data[index] = new LevelPair<K, V>(key, value);;
+					newSize--;
 					break;
 				}
 				
@@ -147,6 +189,7 @@ public class PersistentMap<K, V> implements Map<K, V> {
 					LevelPair<K, V> p = ite.next();
 					if(p.first.equals(key)) {
 						ite.remove();
+						newSize--;
 						break;
 					}
 				}
@@ -156,7 +199,7 @@ public class PersistentMap<K, V> implements Map<K, V> {
 			}
 		}
 		
-		return new PersistentMap<K, V>(this.infos, newRoot);
+		return new PersistentMap<K, V>(this.infos, newRoot, newSize);
 	}
 	
 	private Object createChildren(int infoIndex, LevelPair<K, V> oldPair, LevelPair<K, V> newPair) {
@@ -180,6 +223,60 @@ public class PersistentMap<K, V> implements Map<K, V> {
 			data.data[newIndex] = newPair;
 		}
 		return data;
+	}
+	
+	public PersistentMap<K, V> removeValue(K key) {
+		int hashCode = key.hashCode();
+		
+		LevelData newRoot = new LevelData(infos[0]);
+		int newSize = size - 1;
+		
+		LevelData oldCurr = root;
+		LevelData newCurr = newRoot;
+		for(int i = 0; i < infos.length; i++) {
+			LevelInfo info = infos[i];
+			int index = info.resolve(hashCode);
+			for(int j = 0; j < oldCurr.data.length; j++) {
+				if(j == index) {
+					continue;
+				}
+				newCurr.data[j] = oldCurr.data[j];
+			}
+			Object oldData = oldCurr.data[index];
+			if(oldData == null) {
+				newSize++;
+				break;
+			} else if(oldData instanceof LevelData) {
+				oldCurr = (LevelData) oldData;
+				LevelData nextData = new LevelData(infos[i + 1]);
+				newCurr.data[index] = nextData;
+				newCurr = nextData;
+			} else if(oldData instanceof LevelPair){
+				LevelPair<K, V> p = (LevelPair<K, V>) oldData;
+				if(p.first.equals(key)) {
+					newCurr.data[index] = null;
+				} else {
+					newSize++;
+				}
+				break;
+			} else {
+				List<LevelPair<K, V>> l = (List<LevelPair<K, V>>) oldData;
+				List<LevelPair<K, V>> nl = new ArrayList<LevelPair<K,V>>(l);
+				newSize++;
+				for(Iterator<LevelPair<K, V>> ite = nl.iterator(); ite.hasNext(); ) {
+					LevelPair<K, V> p = ite.next();
+					if(p.first.equals(key)) {
+						ite.remove();
+						newSize--;
+						break;
+					}
+				}
+				newCurr.data[index] = nl;
+				break;
+			}
+		}
+		
+		return new PersistentMap<K, V>(this.infos, newRoot, newSize);
 	}
 
 	////////// Mutators 
@@ -205,13 +302,121 @@ public class PersistentMap<K, V> implements Map<K, V> {
 	
 	////////// Views
 	@Override
-	public Set<java.util.Map.Entry<K, V>> entrySet() {
-		throw new UnsupportedOperationException();
+	public Set<Entry<K, V>> entrySet() {
+		return new AbstractSet<Entry<K, V>>() {
+			@Override
+			public Iterator<Entry<K, V>> iterator() {
+				return new Iterator<Entry<K,V>>() {
+					private Deque<Pair<LevelData, Integer>> data;
+					private int listIndex = -1;
+					
+					private Entry<K, V> current;
+					
+					{
+						data = new LinkedList<Pair<LevelData,Integer>>();
+						data.offerFirst(Pair.of(root, -1));
+					}
+					
+					@Override
+					public boolean hasNext() {
+						if(listIndex >= 0) {
+							Pair<LevelData,Integer> current = this.data.peekLast();
+							List<LevelPair<K, V>> l = (List<LevelPair<K,V>>) current.first.data[current.second];
+							int nextListIndex = listIndex + 1;
+							if(nextListIndex < l.size()) {
+								listIndex = nextListIndex;
+								this.current = l.get(listIndex).toEntry();
+								return true;
+							}
+							listIndex = -1;
+						}
+						
+						OUTER: while(! data.isEmpty()) {
+							Pair<LevelData,Integer> current = this.data.pollLast();
+							int nextIndex = current.second + 1;
+							int infoIndex = this.data.size();
+							LevelInfo info = infos[infoIndex];
+							if(nextIndex >= info.size()) {
+								continue;
+							}
+							for(int i = nextIndex; i < info.size(); i++) {
+								Object cdata = current.first.data[i];
+								if(cdata == null) {
+									continue;
+								} else if(cdata instanceof LevelData) {
+									this.data.offerLast(Pair.of(current.first, i));
+									this.data.offerLast(Pair.of((LevelData) cdata, -1));
+									continue OUTER;
+								} else if(cdata instanceof LevelPair) {
+									this.data.offerLast(Pair.of(current.first, i));
+									this.current = ((LevelPair<K, V>) cdata).toEntry();
+									return true;
+								} else {
+									this.data.offerLast(Pair.of(current.first, i));
+									listIndex = 0;
+									List<LevelPair<K, V>> l = (List<LevelPair<K,V>>) cdata;
+									this.current = l.get(listIndex).toEntry();
+									return true;
+								}
+							}
+						}
+						
+						return false;
+					}
+
+					@Override
+					public java.util.Map.Entry<K, V> next() {
+						if(current == null) {
+							throw new NoSuchElementException();
+						}
+						Entry<K, V> tmp = current;
+						current = null;
+						return tmp;
+					}
+
+					@Override
+					public void remove() {
+						throw new UnsupportedOperationException();
+					}
+				};
+			}
+
+			@Override
+			public int size() {
+				return size;
+			}
+		};
 	}
 
 	@Override
 	public Set<K> keySet() {
-		throw new UnsupportedOperationException();
+		return new AbstractSet<K>() {
+			@Override
+			public Iterator<K> iterator() {
+				return new Iterator<K>() {
+					Iterator<Entry<K, V>> delegate = entrySet().iterator();
+					@Override
+					public boolean hasNext() {
+						return delegate.hasNext();
+					}
+
+					@Override
+					public K next() {
+						return delegate.next().getKey();
+					}
+
+					@Override
+					public void remove() {
+						delegate.remove();
+					}
+				};
+			}
+
+			@Override
+			public int size() {
+				return size;
+			}
+		};
 	}
 
 	@Override
@@ -233,11 +438,11 @@ public class PersistentMap<K, V> implements Map<K, V> {
 	////////// Sizes
 	@Override
 	public boolean isEmpty() {
-		throw new UnsupportedOperationException();
+		return size == 0;
 	}
 	
 	@Override
 	public int size() {
-		throw new UnsupportedOperationException();
+		return size;
 	}
 }
