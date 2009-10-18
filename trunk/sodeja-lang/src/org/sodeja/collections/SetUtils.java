@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.sodeja.functional.Function1;
+import org.sodeja.functional.Pair;
 
 public final class SetUtils {
     private SetUtils() {
@@ -19,4 +20,12 @@ public final class SetUtils {
         Collections.addAll(result, array);
         return result;
     }
+
+    public static Set<Pair<String, Object>> namedValuesToSet(Object... namedValues) {
+		Set<Pair<String, Object>> values = new HashSet<Pair<String,Object>>();
+		for(int i = 0; i < namedValues.length; i+=2) {
+			values.add(Pair.of((String) namedValues[i], namedValues[i + 1]));
+		}
+		return values;
+	}
 }
