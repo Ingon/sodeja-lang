@@ -421,7 +421,33 @@ public class PersistentMap<K, V> implements Map<K, V> {
 
 	@Override
 	public Collection<V> values() {
-		throw new UnsupportedOperationException();
+		return new AbstractSet<V>() {
+			@Override
+			public Iterator<V> iterator() {
+				return new Iterator<V>() {
+					Iterator<Entry<K, V>> delegate = entrySet().iterator();
+					@Override
+					public boolean hasNext() {
+						return delegate.hasNext();
+					}
+
+					@Override
+					public V next() {
+						return delegate.next().getValue();
+					}
+
+					@Override
+					public void remove() {
+						delegate.remove();
+					}
+				};
+			}
+
+			@Override
+			public int size() {
+				return size;
+			}
+		};
 	}
 	
 	////////// Contains
