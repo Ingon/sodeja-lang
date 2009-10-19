@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.sodeja.functional.Pair;
 
@@ -470,5 +471,27 @@ public class PersistentMap<K, V> implements Map<K, V> {
 	@Override
 	public int size() {
 		return size;
+	}
+
+	// TODO extend AbstractMap ?
+	@Override
+	public String toString() {
+		Iterator<Entry<K, V>> i = entrySet().iterator();
+		if (!i.hasNext())
+			return "{}";
+
+		StringBuilder sb = new StringBuilder();
+		sb.append('{');
+		for (;;) {
+			Entry<K, V> e = i.next();
+			K key = e.getKey();
+			V value = e.getValue();
+			sb.append(key == this ? "(this Map)" : key);
+			sb.append('=');
+			sb.append(value == this ? "(this Map)" : value);
+			if (!i.hasNext())
+				return sb.append('}').toString();
+			sb.append(", ");
+		}
 	}
 }
