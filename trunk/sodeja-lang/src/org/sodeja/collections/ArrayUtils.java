@@ -10,6 +10,7 @@ import java.util.List;
 import org.sodeja.functional.Function1;
 import org.sodeja.functional.Function2;
 import org.sodeja.functional.Predicate1;
+import org.sodeja.lang.Range;
 import org.sodeja.lang.StringUtils;
 
 
@@ -28,6 +29,53 @@ public final class ArrayUtils {
             }
         }
         return result;
+    }
+    
+    public static <T> T[] dup(T[] source) {
+    	if(source.length == 0) {
+    		return source;
+    	}
+    	T[] result = createArray1(source[0], source.length * 2);
+    	for(Integer i : Range.of(source)) {
+    		result[i * 2] = source[i];
+    		result[i * 2 + 1] = source[i];
+    	}
+    	return result;
+    }
+    
+    public static <T> T[][] unmapTuples(T[] source, int tupleSize) {
+    	if(tupleSize == 0) {
+    		throw new RuntimeException("Only tuples with size > 0");
+    	}
+    	if(source.length % tupleSize != 0) {
+    		throw new RuntimeException("Expcted whole tuples");
+    	}
+    	
+    	T[][] result = createArray1(source, tupleSize);
+    	if(tupleSize == 1) {
+    		result[0] = source;
+    		return result;
+    	}
+    	
+    	for(int i : Range.of(result)) {
+    		if(source.length != 0) {
+    			result[i] = createArray1(source[0], source.length / tupleSize);
+    		} else {
+    			result[i] = source;
+    		}
+    	}
+    	
+    	if(source.length == 0) {
+    		return result;
+    	}
+    	
+    	for(final int i : Range.of(result[0])) {
+    		for(final int j : Range.of(tupleSize)) {
+    			result[j][i] = source[i * tupleSize + j];
+    		}
+    	}
+    	
+    	return result;
     }
     
     @SuppressWarnings("unchecked")

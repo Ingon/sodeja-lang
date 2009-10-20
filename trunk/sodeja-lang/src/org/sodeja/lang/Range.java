@@ -53,4 +53,8 @@ public class Range extends Pair<Integer, Integer> implements Iterable<Integer> {
 	public static <T> Range of(List<T> arr) {
 		return new Range(0, arr.size());
 	}
+	
+	public static Range of(int to) {
+		return new Range(0, to);
+	}
 }
