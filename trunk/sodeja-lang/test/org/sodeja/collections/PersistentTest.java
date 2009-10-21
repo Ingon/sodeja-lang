@@ -56,10 +56,11 @@ public class PersistentTest {
 //		testMulty();
 //		testIterator();
 //		testPerformance();
-		testIteratorPerformance();
+//		testIteratorPerformance();
+		testPutAll();
 	}
 
-	private static final int GEN_SIZE = 50000;
+	private static final int GEN_SIZE = 1000;
 	private static void testPerformance() {
 		System.out.println("Hash: " + testHash());
 		System.out.println("Tree: " + testTree());
@@ -179,4 +180,28 @@ public class PersistentTest {
 		long end = System.currentTimeMillis();
 		return (end - start);
 	}
+
+	private static void testPutAll() {
+		Set<String> set = new HashSet<String>();
+		for(int i = 0; i < GEN_SIZE; i++) {
+			set.add("data" + i);
+		}
+		
+		long start = System.currentTimeMillis();
+		PersistentSet<String> pset = new PersistentSet<String>();
+		for(String s : set) {
+			pset = pset.addValue(s);
+		}
+		long end = System.currentTimeMillis();
+		System.out.println("Single add: " + (end - start));
+
+		start = System.currentTimeMillis();
+		PersistentSet<String> piset = new PersistentSet<String>();
+		piset = piset.addAllValues(set);
+		end = System.currentTimeMillis();
+		System.out.println("Multy add: " + (end - start));
+		
+		System.out.println("EQ: " + (pset.size() == piset.size()));
+	}
+
 }

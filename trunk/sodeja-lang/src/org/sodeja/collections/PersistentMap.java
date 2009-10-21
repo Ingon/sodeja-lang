@@ -2,12 +2,15 @@ package org.sodeja.collections;
 
 import java.util.AbstractSet;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.sodeja.functional.Pair;
+import org.sodeja.lang.MutableInteger;
 
 public class PersistentMap<K, V> implements Map<K, V> {
 	
@@ -192,6 +195,189 @@ public class PersistentMap<K, V> implements Map<K, V> {
 		return new PersistentMap<K, V>(this.infos, newRoot, newSize);
 	}
 	
+	public PersistentMap<K, V> putAllValues(Map<? extends K, ? extends V> m) {
+		MutableInteger msize = new MutableInteger(this.size);
+		LevelData newRoot = inserAll(root, 0, (Set<Entry<K, V>>) (Set) m.entrySet(), msize);
+		return new PersistentMap<K, V>(infos, newRoot, msize.value);
+	}
+
+	public PersistentMap<K, V> putAllKeys(final Collection<K> keys, final V value) {
+		MutableInteger msize = new MutableInteger(this.size);
+		LevelData newRoot = inserAll(root, 0, new AbstractSet<Entry<K,V>>() {
+			@Override
+			public Iterator<Entry<K, V>> iterator() {
+				return new Iterator<Entry<K,V>>() {
+					private Iterator<K> keysIterator = keys.iterator();
+					
+					@Override
+					public boolean hasNext() {
+						return keysIterator.hasNext();
+					}
+
+					@Override
+					public Entry<K, V> next() {
+						return new LevelPair<K, V>(keysIterator.next(), value);
+					}
+
+					@Override
+					public void remove() {
+						throw new UnsupportedOperationException();
+					}
+				};
+			}
+
+			@Override
+			public int size() {
+				return keys.size();
+			}
+		}, msize);
+		return new PersistentMap<K, V>(infos, newRoot, msize.value);
+	}
+	
+	private LevelData inserAll(LevelData oldData, int infoIndex, Set<Entry<K, V>> entries, MutableInteger size) {
+		LevelInfo info = infos[infoIndex];
+		Set<Map.Entry<K, V>>[] separated = separateBy(info, entries);
+		
+		LevelData newData = new LevelData(info);
+		copyToNew(oldData, newData); 
+		for(int i = 0; i < info.dataSize; i++) {
+			if(separated[i] == null) {
+				continue;
+			}
+			newData.data[i] = insertAll(oldData.data[i], infoIndex + 1, separated[i], size);
+		}
+		
+		return newData;
+	}
+	
+	private Object insertAll(Object oldData, int infoIndex, Set<Entry<K, V>> entries, MutableInteger size) {
+		if(oldData == null) {
+			if(entries.size() == 1) {
+				Iterator<Entry<K, V>> it = entries.iterator();
+				it.hasNext();
+				size.value++;
+				return fromEntry(it.next());
+			} else if(infoIndex >= infos.length) {
+				Iterator<Entry<K, V>> it = entries.iterator();
+				LevelPair<K, V>[] nl = new LevelPair[entries.size()];
+				for(int i = 0; i < nl.length; i++) {
+					it.hasNext();
+					nl[i] = fromEntry(it.next());
+				}
+				size.value+=nl.length;
+				return nl;
+			} else {
+				LevelInfo info = infos[infoIndex];
+				Set<Map.Entry<K, V>>[] separated = separateBy(info, entries);
+				
+				LevelData newData = new LevelData(info);
+				for(int i = 0; i < info.dataSize; i++) {
+					if(separated[i] == null) {
+						continue;
+					}
+					newData.data[i] = insertAll(null, infoIndex + 1, separated[i], size);
+				}
+				return newData;
+			}
+		} else if(oldData instanceof LevelData) {
+			return insertAll((LevelData) oldData, infoIndex, entries, size);
+		} else if(oldData instanceof LevelPair) {
+			LevelPair<K, V> oldE = (LevelPair<K, V>) oldData;
+			
+			boolean containsOld = false;
+			for(Entry<K, V> e : entries) {
+				K k = e.getKey();
+				if(oldE.first == k || oldE.first.equals(k)) {
+					containsOld = true;
+					break;
+				}
+			}
+			
+			if(infoIndex >= infos.length) {
+				Iterator<Entry<K, V>> it = entries.iterator();
+				LevelPair<K, V>[] nl = new LevelPair[entries.size() + (containsOld ? 0 : 1)];
+				for(int i = 0, n = entries.size(); i < n; i++) {
+					it.hasNext();
+					nl[i] = fromEntry(it.next());
+				}
+				if(containsOld) {
+					nl[nl.length - 1] = oldE;
+				}
+				size.value += nl.length - (containsOld ? -1 : 0);
+				return nl;
+			} else {
+				LevelInfo info = infos[infoIndex];
+				
+				Set<Map.Entry<K, V>>[] separated = separateBy(info, entries);
+				if(! containsOld) {
+					int hashCode = oldE.hashCode();
+					int levelId = info.resolve(hashCode);
+					if(separated[levelId] == null) {
+						separated[levelId] = new HashSet<Map.Entry<K, V>>();
+					}
+					separated[levelId].add(oldE);
+				}
+				
+				LevelData newData = new LevelData(info);
+				for(int i = 0; i < info.dataSize; i++) {
+					if(separated[i] == null) {
+						continue;
+					}
+					newData.data[i] = insertAll(null, infoIndex + 1, separated[i], size);
+				}
+				return newData;
+			}
+		} else {
+			LevelPair<K, V>[] l = (LevelPair<K, V>[]) oldData;
+			LevelPair<K, V>[] nl = new LevelPair[entries.size()];
+			
+			Entry<K, V>[] toPut = new Entry[entries.size()];
+			int putCount = 0;
+			
+			OUTER: for(Entry<K, V> e : entries) {
+				K key = e.getKey();
+				for(int i = 0; i < nl.length; i++) {
+					LevelPair<K, V> p = nl[i];
+					if(p.first == key || p.first.equals(key)) {
+						nl[i] = fromEntry(e);
+						continue OUTER;
+					}
+				}
+				toPut[putCount++] = e;
+			}
+			
+			LevelPair<K, V>[] nnl = new LevelPair[nl.length + putCount];
+			System.arraycopy(nl, 0, nnl, 0, nl.length);
+			for(int i = 0; i < putCount; i++) {
+				nnl[nl.length + i] = fromEntry(toPut[i]);
+			}
+			
+			size.value += putCount;
+			
+			return nl;
+		}
+	}
+	
+	private Set<Map.Entry<K, V>>[] separateBy(LevelInfo info, Set<Map.Entry<K, V>> entries) {
+		Set<Map.Entry<K, V>>[] separated = new Set[info.dataSize];
+		for(Map.Entry<K, V> e : entries) {
+			int hashCode = e.hashCode();
+			int levelId = info.resolve(hashCode);
+			if(separated[levelId] == null) {
+				separated[levelId] = new HashSet<Map.Entry<K, V>>();
+			}
+			separated[levelId].add(e);
+		}
+		return separated;
+	}
+	
+	private LevelPair<K, V> fromEntry(Entry<K, V> e) {
+		if(e instanceof LevelPair) {
+			return (LevelPair<K, V>) e;
+		}
+		return new LevelPair<K, V>(e.getKey(), e.getValue());
+	}
+
 	private Object createChildren(int infoIndex, LevelPair<K, V> oldPair, LevelPair<K, V> newPair) {
 		if(infoIndex >= infos.length) {
 			LevelPair<K, V>[] nl = new LevelPair[2];
