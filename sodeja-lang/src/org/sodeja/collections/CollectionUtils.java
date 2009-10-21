@@ -126,4 +126,16 @@ public final class CollectionUtils {
 			}});
 		return groups;
 	}
+
+	public static <R, P> Map<R, P> mappedValues(Iterable<P> source, final Function1<R, P> functor) {
+		final Map<R, P> groups = new HashMap<R, P>();
+		execute(source, new Function1<Void, P>() {
+			@Override
+			public Void execute(P p) {
+				R val = functor.execute(p);
+				groups.put(val, p);
+				return null;
+			}});
+		return groups;
+	}
 }
