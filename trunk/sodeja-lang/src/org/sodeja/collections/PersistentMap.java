@@ -1,12 +1,8 @@
 package org.sodeja.collections;
 
 import java.util.AbstractSet;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -16,18 +12,18 @@ import org.sodeja.functional.Pair;
 public class PersistentMap<K, V> implements Map<K, V> {
 	
 	private static class LevelInfo {
-		private final int size;
+		private final int maskSize;
 		private final int pushSize;
 		private final int mask;
-		private final int dataSize;
+		public final int dataSize;
 		
-		public LevelInfo(int size, int pushSize) {
-			this.size = size;
+		public LevelInfo(int maskSize, int pushSize) {
+			this.maskSize = maskSize;
 			this.pushSize = pushSize;
 			
 			int maskResolve = 0;
 			int tempSize = 1;
-			for(int i = 0; i < size; i++) {
+			for(int i = 0; i < maskSize; i++) {
 				maskResolve <<= 1;
 				maskResolve |= 1;
 				tempSize *= 2;
@@ -40,17 +36,13 @@ public class PersistentMap<K, V> implements Map<K, V> {
 			int temp = mask & hashCode;
 			return temp >>> pushSize;
 		}
-
-		public int size() {
-			return dataSize;
-		}
 	}
 	
 	private static class LevelData {
 		public final Object[] data;
 		
 		public LevelData(LevelInfo info) {
-			data = new Object[info.size()];
+			data = new Object[info.dataSize];
 		}
 		
 		public boolean isEmpty() {
@@ -64,28 +56,24 @@ public class PersistentMap<K, V> implements Map<K, V> {
 		}
 	}
 	
-	private static class LevelPair<K, V> extends Pair<K, V> {
+	private static class LevelPair<K, V> extends Pair<K, V> implements Map.Entry<K, V> {
 		protected LevelPair(K first, V second) {
 			super(first, second);
 		}
-		
-		protected Entry<K, V> toEntry() {
-			return new Map.Entry<K, V>() {
-				@Override
-				public K getKey() {
-					return first;
-				}
 
-				@Override
-				public V getValue() {
-					return second;
-				}
+		@Override
+		public K getKey() {
+			return first;
+		}
 
-				@Override
-				public V setValue(V value) {
-					throw new UnsupportedOperationException();
-				}
-			};
+		@Override
+		public V getValue() {
+			return second;
+		}
+
+		@Override
+		public V setValue(V value) {
+			throw new UnsupportedOperationException();
 		}
 	}
 
@@ -134,12 +122,6 @@ public class PersistentMap<K, V> implements Map<K, V> {
 						return l[m].second;
 					}
 				}
-//				List<LevelPair<K, V>> l = (List<LevelPair<K, V>>) next;
-//				for(LevelPair<K, V> e : l) {
-//					if(e.first.equals(key)) {
-//						return e.second;
-//					}
-//				}
 				return null;
 			}
 		}
@@ -183,17 +165,6 @@ public class PersistentMap<K, V> implements Map<K, V> {
 				newCurr.data[index] = createChildren(i + 1, p, new LevelPair<K, V>(key, value));
 				break;
 			} else {
-//				List<LevelPair<K, V>> l = (List<LevelPair<K, V>>) oldData;
-//				List<LevelPair<K, V>> nl = new ArrayList<LevelPair<K,V>>(l);
-//				for(Iterator<LevelPair<K, V>> ite = nl.iterator(); ite.hasNext(); ) {
-//					LevelPair<K, V> p = ite.next();
-//					if(p.first == key || p.first.equals(key)) {
-//						ite.remove();
-//						newSize--;
-//						break;
-//					}
-//				}
-//				nl.add(new LevelPair<K, V>(key, value));
 				LevelPair<K, V>[] l = (LevelPair[]) oldData;
 				LevelPair<K, V>[] nl = l;
 				
@@ -223,9 +194,6 @@ public class PersistentMap<K, V> implements Map<K, V> {
 	
 	private Object createChildren(int infoIndex, LevelPair<K, V> oldPair, LevelPair<K, V> newPair) {
 		if(infoIndex >= infos.length) {
-//			List<LevelPair<K, V>> nl = new ArrayList<LevelPair<K,V>>();
-//			nl.add(oldPair);
-//			nl.add(newPair);
 			LevelPair<K, V>[] nl = new LevelPair[2];
 			nl[0] = oldPair;
 			nl[1] = newPair;
@@ -284,18 +252,6 @@ public class PersistentMap<K, V> implements Map<K, V> {
 				}
 				break;
 			} else {
-//				List<LevelPair<K, V>> l = (List<LevelPair<K, V>>) oldData;
-//				List<LevelPair<K, V>> nl = new ArrayList<LevelPair<K,V>>(l);
-//				newSize++;
-//				for(Iterator<LevelPair<K, V>> ite = nl.iterator(); ite.hasNext(); ) {
-//					LevelPair<K, V> p = ite.next();
-//					if(p.first == key || p.first.equals(key)) {
-//						ite.remove();
-//						newSize--;
-//						break;
-//					}
-//				}
-				
 				LevelPair<K, V>[] l = (LevelPair[]) oldData;
 				LevelPair<K, V>[] nl = l;
 				newSize++;
@@ -373,7 +329,7 @@ public class PersistentMap<K, V> implements Map<K, V> {
 							int nextListIndex = listIndex + 1;
 							if(nextListIndex < l.length) {
 								listIndex = nextListIndex;
-								this.current = l[listIndex].toEntry();
+								this.current = l[listIndex];
 								return true;
 							}
 							listIndex = -1;
@@ -385,10 +341,10 @@ public class PersistentMap<K, V> implements Map<K, V> {
 							int infoIndex = stateIndex + 1;
 							
 							LevelInfo info = infos[infoIndex];
-							if(nextIndex >= info.size()) {
+							if(nextIndex >= info.dataSize) {
 								continue;
 							}
-							for(int i = nextIndex; i < info.size(); i++) {
+							for(int i = nextIndex; i < info.dataSize; i++) {
 								Object cdata = current.data.data[i];
 								if(cdata == null) {
 									continue;
@@ -402,7 +358,7 @@ public class PersistentMap<K, V> implements Map<K, V> {
 								} else if(cdata instanceof LevelPair) {
 									stateIndex++;
 									this.state[stateIndex].index = i;
-									this.current = ((LevelPair<K, V>) cdata).toEntry();
+									this.current = ((LevelPair<K, V>) cdata);
 									return true;
 								} else {
 									stateIndex++;
@@ -410,7 +366,7 @@ public class PersistentMap<K, V> implements Map<K, V> {
 									this.state[stateIndex].index = i;
 									listIndex = 0;
 									LevelPair<K, V>[] l = (LevelPair[]) cdata;
-									this.current = l[listIndex].toEntry();
+									this.current = l[listIndex];
 									return true;
 								}
 							}

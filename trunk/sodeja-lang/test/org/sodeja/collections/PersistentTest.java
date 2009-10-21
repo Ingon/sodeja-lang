@@ -133,9 +133,9 @@ public class PersistentTest {
 	}
 
 	private static void testIteratorPerformance() {
-		System.out.println("Hash: " + testiHash());
-		System.out.println("Tree: " + testiTree());
-		System.out.println("Pers: " + testiPersistent());
+		System.out.println("iHash: " + testiHash());
+		System.out.println("iTree: " + testiTree());
+		System.out.println("iPers: " + testiPersistent());
 	}
 	
 	private static long testiHash() {
