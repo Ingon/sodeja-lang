@@ -35,13 +35,8 @@ public class PersistentSet<E> extends AbstractSet<E> {
 		return new PersistentSet<E>(map.putValue(e, INTERNAL_VALUE));
 	}
 
-	// TODO innefective
-	public PersistentSet<E> addAllValues(Collection<E> values) {
-		PersistentMap<E, Object> c = map;
-		for(E e : values) {
-			c = c.putValue(e, INTERNAL_VALUE);
-		}
-		return new PersistentSet<E>(c);
+	public PersistentSet<E> addAllValues(final Collection<E> values) {
+		return new PersistentSet<E>(map.putAllKeys(values, INTERNAL_VALUE));
 	}
 	
 	public PersistentSet<E> removeValue(E e) {
