@@ -5,34 +5,39 @@ import java.util.Collection;
 import java.util.Iterator;
 
 public class PersistentSet<E> extends AbstractSet<E> {
-	private final PersistentMap<E, Object> backend;
+	private final PersistentMap<E, Object> map;
 	private static final Object INTERNAL_VALUE = new Object();
 	
 	public PersistentSet() {
-		this.backend = new PersistentMap<E, Object>();
+		this.map = new PersistentMap<E, Object>();
 	}
 	
-	private PersistentSet(PersistentMap<E, Object> backend) {
-		this.backend = backend;
+	private PersistentSet(PersistentMap<E, Object> map) {
+		this.map = map;
 	}
 	
 	@Override
 	public Iterator<E> iterator() {
-		return backend.keySet().iterator();
+		return map.keySet().iterator();
 	}
 
 	@Override
 	public int size() {
-		return backend.size();
+		return map.size();
+	}
+
+	@Override
+	public boolean contains(Object o) {
+		return map.containsKey(o);
 	}
 
 	public PersistentSet<E> addValue(E e) {
-		return new PersistentSet<E>(backend.putValue(e, INTERNAL_VALUE));
+		return new PersistentSet<E>(map.putValue(e, INTERNAL_VALUE));
 	}
 
 	// TODO innefective
 	public PersistentSet<E> addAllValues(Collection<E> values) {
-		PersistentMap<E, Object> c = backend;
+		PersistentMap<E, Object> c = map;
 		for(E e : values) {
 			c = c.putValue(e, INTERNAL_VALUE);
 		}
@@ -40,6 +45,6 @@ public class PersistentSet<E> extends AbstractSet<E> {
 	}
 	
 	public PersistentSet<E> removeValue(E e) {
-		return new PersistentSet<E>(backend.removeValue(e));
+		return new PersistentSet<E>(map.removeValue(e));
 	}
 }

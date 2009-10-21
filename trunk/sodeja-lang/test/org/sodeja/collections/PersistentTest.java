@@ -72,8 +72,11 @@ public class PersistentTest {
 			set.add("data" + i);
 		}
 		for(int i = 0; i < GEN_SIZE; i++) {
-			set.remove("data" + i);
+			set.contains("data" + i);
 		}
+//		for(int i = 0; i < GEN_SIZE; i++) {
+//			set.remove("data" + i);
+//		}
 		long end = System.currentTimeMillis();
 		return (end - start);
 	}
@@ -85,8 +88,11 @@ public class PersistentTest {
 			set.add("data" + i);
 		}
 		for(int i = 0; i < GEN_SIZE; i++) {
-			set.remove("data" + i);
+			set.contains("data" + i);
 		}
+//		for(int i = 0; i < GEN_SIZE; i++) {
+//			set.remove("data" + i);
+//		}
 		long end = System.currentTimeMillis();
 		return (end - start);
 	}
@@ -98,8 +104,11 @@ public class PersistentTest {
 			set = set.addValue("data" + i);
 		}
 		for(int i = 0; i < GEN_SIZE; i++) {
-			set = set.removeValue("data" + i);
+			set.contains("data" + i);
 		}
+//		for(int i = 0; i < GEN_SIZE; i++) {
+//			set = set.removeValue("data" + i);
+//		}
 		long end = System.currentTimeMillis();
 		return (end - start);
 	}
