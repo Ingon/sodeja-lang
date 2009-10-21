@@ -38,7 +38,7 @@ public class PersistentMap<K, V> implements Map<K, V> {
 		
 		public int resolve(int hashCode) {
 			int temp = mask & hashCode;
-			return temp >> pushSize;
+			return temp >>> pushSize;
 		}
 
 		public int size() {
@@ -235,8 +235,11 @@ public class PersistentMap<K, V> implements Map<K, V> {
 		LevelInfo currentInfo = infos[infoIndex];
 		LevelData data = new LevelData(currentInfo);
 		
-		int oldIndex = currentInfo.resolve(oldPair.first.hashCode());
-		int newIndex = currentInfo.resolve(newPair.first.hashCode());
+		int oldHashCode = oldPair.first.hashCode();
+		int oldIndex = currentInfo.resolve(oldHashCode);
+		
+		int newHashCode = newPair.first.hashCode();
+		int newIndex = currentInfo.resolve(newHashCode);
 		
 		if(oldIndex == newIndex) {
 			data.data[oldIndex] = createChildren(infoIndex + 1, oldPair, newPair);
@@ -336,6 +339,11 @@ public class PersistentMap<K, V> implements Map<K, V> {
 		throw new UnsupportedOperationException();
 	}
 	
+	private static class IteratorStatePart {
+		public LevelData data;
+		public int index;
+	}
+	
 	////////// Views
 	@Override
 	public Set<Entry<K, V>> entrySet() {
@@ -343,28 +351,25 @@ public class PersistentMap<K, V> implements Map<K, V> {
 			@Override
 			public Iterator<Entry<K, V>> iterator() {
 				return new Iterator<Entry<K,V>>() {
-					private Deque<Pair<LevelData, Integer>> data;
-					private int listIndex = -1;
-					
-					private Entry<K, V> current;
+					private final IteratorStatePart[] state = new IteratorStatePart[infos.length];
+					private int stateIndex;
 					
 					{
-						data = new LinkedList<Pair<LevelData,Integer>>();
-						data.offerFirst(Pair.of(root, -1));
+						for(int i = 0;i < state.length; i++) {
+							state[i] = new IteratorStatePart();
+						}
+						stateIndex = 0;
+						state[stateIndex].data = root;
+						state[stateIndex].index = -1;
 					}
+					private int listIndex = -1;
+					private Entry<K, V> current;
 					
 					@Override
 					public boolean hasNext() {
 						if(listIndex >= 0) {
-							Pair<LevelData,Integer> current = this.data.peekLast();
-//							List<LevelPair<K, V>> l = (List<LevelPair<K,V>>) current.first.data[current.second];
-//							int nextListIndex = listIndex + 1;
-//							if(nextListIndex < l.size()) {
-//								listIndex = nextListIndex;
-//								this.current = l.get(listIndex).toEntry();
-//								return true;
-//							}
-							LevelPair<K, V>[] l = (LevelPair[]) current.first.data[current.second];
+							IteratorStatePart current = state[stateIndex];
+							LevelPair<K, V>[] l = (LevelPair[]) current.data.data[current.index];
 							int nextListIndex = listIndex + 1;
 							if(nextListIndex < l.length) {
 								listIndex = nextListIndex;
@@ -374,31 +379,36 @@ public class PersistentMap<K, V> implements Map<K, V> {
 							listIndex = -1;
 						}
 						
-						OUTER: while(! data.isEmpty()) {
-							Pair<LevelData,Integer> current = this.data.pollLast();
-							int nextIndex = current.second + 1;
-							int infoIndex = this.data.size();
+						OUTER: while(stateIndex >= 0) {
+							IteratorStatePart current = state[stateIndex--];
+							int nextIndex = current.index + 1;
+							int infoIndex = stateIndex + 1;
+							
 							LevelInfo info = infos[infoIndex];
 							if(nextIndex >= info.size()) {
 								continue;
 							}
 							for(int i = nextIndex; i < info.size(); i++) {
-								Object cdata = current.first.data[i];
+								Object cdata = current.data.data[i];
 								if(cdata == null) {
 									continue;
 								} else if(cdata instanceof LevelData) {
-									this.data.offerLast(Pair.of(current.first, i));
-									this.data.offerLast(Pair.of((LevelData) cdata, -1));
+									stateIndex++;
+									this.state[stateIndex].index = i;
+									stateIndex++;
+									this.state[stateIndex].data = (LevelData) cdata;
+									this.state[stateIndex].index = -1;
 									continue OUTER;
 								} else if(cdata instanceof LevelPair) {
-									this.data.offerLast(Pair.of(current.first, i));
+									stateIndex++;
+									this.state[stateIndex].index = i;
 									this.current = ((LevelPair<K, V>) cdata).toEntry();
 									return true;
 								} else {
-									this.data.offerLast(Pair.of(current.first, i));
+									stateIndex++;
+									this.state[stateIndex].data = (LevelData) cdata;
+									this.state[stateIndex].index = i;
 									listIndex = 0;
-//									List<LevelPair<K, V>> l = (List<LevelPair<K,V>>) cdata;
-//									this.current = l.get(listIndex).toEntry();
 									LevelPair<K, V>[] l = (LevelPair[]) cdata;
 									this.current = l[listIndex].toEntry();
 									return true;

@@ -55,7 +55,8 @@ public class PersistentTest {
 	public static void main(String[] args) {
 //		testMulty();
 //		testIterator();
-		testPerformance();
+//		testPerformance();
+		testIteratorPerformance();
 	}
 
 	private static final int GEN_SIZE = 50000;
@@ -74,9 +75,9 @@ public class PersistentTest {
 		for(int i = 0; i < GEN_SIZE; i++) {
 			set.contains("data" + i);
 		}
-//		for(int i = 0; i < GEN_SIZE; i++) {
-//			set.remove("data" + i);
-//		}
+		for(int i = 0; i < GEN_SIZE; i++) {
+			set.remove("data" + i);
+		}
 		long end = System.currentTimeMillis();
 		return (end - start);
 	}
@@ -90,9 +91,9 @@ public class PersistentTest {
 		for(int i = 0; i < GEN_SIZE; i++) {
 			set.contains("data" + i);
 		}
-//		for(int i = 0; i < GEN_SIZE; i++) {
-//			set.remove("data" + i);
-//		}
+		for(int i = 0; i < GEN_SIZE; i++) {
+			set.remove("data" + i);
+		}
 		long end = System.currentTimeMillis();
 		return (end - start);
 	}
@@ -106,9 +107,9 @@ public class PersistentTest {
 		for(int i = 0; i < GEN_SIZE; i++) {
 			set.contains("data" + i);
 		}
-//		for(int i = 0; i < GEN_SIZE; i++) {
-//			set = set.removeValue("data" + i);
-//		}
+		for(int i = 0; i < GEN_SIZE; i++) {
+			set = set.removeValue("data" + i);
+		}
 		long end = System.currentTimeMillis();
 		return (end - start);
 	}
@@ -129,5 +130,53 @@ public class PersistentTest {
 		if(sz != maps.length - 1) {
 			System.out.println("NOT SAME");
 		}
+	}
+
+	private static void testIteratorPerformance() {
+		System.out.println("Hash: " + testiHash());
+		System.out.println("Tree: " + testiTree());
+		System.out.println("Pers: " + testiPersistent());
+	}
+	
+	private static long testiHash() {
+		long start = System.currentTimeMillis();
+		Set<String> set = new HashSet<String>();
+		for(int i = 0; i < GEN_SIZE; i++) {
+			set.add("data" + i);
+		}
+		Set<String> nset = new HashSet<String>();
+		for(String s : set) {
+			nset.add(s);
+		}
+		long end = System.currentTimeMillis();
+		return (end - start);
+	}
+	
+	private static long testiTree() {
+		long start = System.currentTimeMillis();
+		Set<String> set = new TreeSet<String>();
+		for(int i = 0; i < GEN_SIZE; i++) {
+			set.add("data" + i);
+		}
+		Set<String> nset = new TreeSet<String>();
+		for(String s : set) {
+			nset.add(s);
+		}
+		long end = System.currentTimeMillis();
+		return (end - start);
+	}
+	
+	private static long testiPersistent() {
+		long start = System.currentTimeMillis();
+		PersistentSet<String> set = new PersistentSet<String>();
+		for(int i = 0; i < GEN_SIZE; i++) {
+			set = set.addValue("data" + i);
+		}
+		PersistentSet<String> nset = new PersistentSet<String>();
+		for(String s : set) {
+			nset = nset.addValue(s);
+		}
+		long end = System.currentTimeMillis();
+		return (end - start);
 	}
 }
