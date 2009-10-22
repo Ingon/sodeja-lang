@@ -6,10 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import clojure.lang.IPersistentSet;
-import clojure.lang.PersistentHashSet;
-
-
 public class PersistentTest {
 	public static void testGet() {
 		PersistentMap<String, String> map = new PersistentMap<String, String>();
@@ -70,7 +66,7 @@ public class PersistentTest {
 		System.out.println("Hash: " + testHash());
 		System.out.println("Tree: " + testTree());
 		System.out.println("Pers: " + testPersistent());
-		System.out.println("CPers: " + testCPersistent());
+//		System.out.println("CPers: " + testCPersistent());
 	}
 	
 	private static long testHash() {
@@ -121,21 +117,21 @@ public class PersistentTest {
 		return (end - start);
 	}
 	
-	private static long testCPersistent() throws Exception {
-		long start = System.currentTimeMillis();
-		IPersistentSet set = PersistentHashSet.EMPTY;
-		for(int i = 0; i < GEN_SIZE; i++) {
-			set = (IPersistentSet) set.cons("data" + i);
-		}
-		for(int i = 0; i < GEN_SIZE; i++) {
-			set.contains("data" + i);
-		}
-		for(int i = 0; i < GEN_SIZE; i++) {
-			set = (IPersistentSet) set.disjoin("data" + i);
-		}
-		long end = System.currentTimeMillis();
-		return (end - start);
-	}
+//	private static long testCPersistent() throws Exception {
+//		long start = System.currentTimeMillis();
+//		IPersistentSet set = PersistentHashSet.EMPTY;
+//		for(int i = 0; i < GEN_SIZE; i++) {
+//			set = (IPersistentSet) set.cons("data" + i);
+//		}
+//		for(int i = 0; i < GEN_SIZE; i++) {
+//			set.contains("data" + i);
+//		}
+//		for(int i = 0; i < GEN_SIZE; i++) {
+//			set = (IPersistentSet) set.disjoin("data" + i);
+//		}
+//		long end = System.currentTimeMillis();
+//		return (end - start);
+//	}
 	
 	private static void testIterator() {
 		PersistentMap<String, String>[] maps = new PersistentMap[30];
@@ -234,7 +230,7 @@ public class PersistentTest {
 		System.out.println("pHash: " + testpHash(set));
 		System.out.println("pTree: " + testpTree(set));
 		System.out.println("pPers: " + testpPersistent(set));
-		System.out.println("pCPers: " + testpCPersistent(set));
+//		System.out.println("pCPers: " + testpCPersistent(set));
 	}
 
 	private static long testpHash(Set<String> set) {
@@ -270,13 +266,13 @@ public class PersistentTest {
 		return (end - start);
 	}
 
-	private static long testpCPersistent(Set<String> set) {
-		long start = System.currentTimeMillis();
-		PersistentHashSet hset = PersistentHashSet.create(set);
-		for(Iterator ite = hset.iterator(); ite.hasNext(); ) {
-			ite.next();
-		}
-		long end = System.currentTimeMillis();
-		return (end - start);
-	}
+//	private static long testpCPersistent(Set<String> set) {
+//		long start = System.currentTimeMillis();
+//		PersistentHashSet hset = PersistentHashSet.create(set);
+//		for(Iterator ite = hset.iterator(); ite.hasNext(); ) {
+//			ite.next();
+//		}
+//		long end = System.currentTimeMillis();
+//		return (end - start);
+//	}
 }
