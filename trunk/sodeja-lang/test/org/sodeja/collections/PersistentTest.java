@@ -54,13 +54,14 @@ public class PersistentTest {
 	
 	public static void main(String[] args) {
 //		testMulty();
-//		testIterator();
 //		testPerformance();
+//		testIterator();
 //		testIteratorPerformance();
 		testPutAll();
+		testPutAllPerformance();
 	}
 
-	private static final int GEN_SIZE = 1000;
+	private static final int GEN_SIZE = 2;
 	private static void testPerformance() {
 		System.out.println("Hash: " + testHash());
 		System.out.println("Tree: " + testTree());
@@ -204,4 +205,37 @@ public class PersistentTest {
 		System.out.println("EQ: " + (pset.size() == piset.size()));
 	}
 
+	private static void testPutAllPerformance() {
+		Set<String> set = new HashSet<String>();
+		for(int i = 0; i < GEN_SIZE; i++) {
+			set.add("data" + i);
+		}
+		System.out.println("pHash: " + testpHash(set));
+		System.out.println("pTree: " + testpTree(set));
+		System.out.println("pPers: " + testpPersistent(set));
+	}
+
+	private static long testpHash(Set<String> set) {
+		long start = System.currentTimeMillis();
+		Set<String> hset = new HashSet<String>();
+		hset.addAll(set);
+		long end = System.currentTimeMillis();
+		return (end - start);
+	}
+
+	private static long testpTree(Set<String> set) {
+		long start = System.currentTimeMillis();
+		Set<String> hset = new TreeSet<String>();
+		hset.addAll(set);
+		long end = System.currentTimeMillis();
+		return (end - start);
+	}
+
+	private static long testpPersistent(Set<String> set) {
+		long start = System.currentTimeMillis();
+		PersistentSet<String> hset = new PersistentSet<String>();
+		hset.addAllValues(set);
+		long end = System.currentTimeMillis();
+		return (end - start);
+	}
 }
