@@ -2,6 +2,7 @@ package org.sodeja.collections;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.sodeja.functional.Function1;
@@ -27,5 +28,16 @@ public final class SetUtils {
 			values.add(Pair.of((String) namedValues[i], namedValues[i + 1]));
 		}
 		return values;
+	}
+
+	public static <T> T first(Set<T> set) {
+		if(set.isEmpty()) {
+			return null;
+		}
+		Iterator<T> ite = set.iterator();
+		if(! ite.hasNext()) {
+			return null;
+		}
+		return ite.next();
 	}
 }
