@@ -15,7 +15,7 @@ public final class CollectionUtils {
     private CollectionUtils() {
     }
     
-    public static <T, R> Collection<R> map(Collection<T> source, Collection<R> result, Function1<R, T> functor) {
+    public static <T, R, V extends Collection<R>> V map(Collection<T> source, V result, Function1<R, T> functor) {
     	if(source == null) {
     		return null;
     	}
