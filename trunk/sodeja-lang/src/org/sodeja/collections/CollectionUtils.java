@@ -48,7 +48,7 @@ public final class CollectionUtils {
         return result;
     }
 
-    public static <T> Collection<T> filter(Collection<T> source, Collection<T> result, Predicate1<T> functor) {
+    public static <T, V extends Collection<T>> V filter(Collection<T> source, V result, Predicate1<T> functor) {
         for (T t : source) {
             if (functor.execute(t)) {
                 result.add(t);
