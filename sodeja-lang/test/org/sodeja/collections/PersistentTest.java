@@ -56,9 +56,9 @@ public class PersistentTest {
 //		testMulty();
 		testPerformance();
 //		testIterator();
-		testIteratorPerformance();
+//		testIteratorPerformance();
 //		testPutAll();
-		testPutAllPerformance();
+//		testPutAllPerformance();
 	}
 
 	private static final int GEN_SIZE = 200000;
