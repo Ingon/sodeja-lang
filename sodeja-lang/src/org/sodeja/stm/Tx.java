@@ -135,8 +135,8 @@ public class Tx {
 	}
 	
 	private void clearInfo(TransactionInfo info) {
-		System.out.println("Clear: " + info.version);
-		order.poll();
+		order.remove(info);
+//		order.poll();
 		state.remove();
 		info.version.transactionInfoCount.decrementAndGet();
 		
