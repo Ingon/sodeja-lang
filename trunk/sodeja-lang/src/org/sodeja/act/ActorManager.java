@@ -26,9 +26,7 @@ public class ActorManager {
 	}
 	
 	public ActorId spawn(Actor a, Object initMsg) {
-		ActorId id = spawn(a);
-		id.send(initMsg);
-		return id;
+		return spawn(a).send(initMsg);
 	}
 
 	protected void send(final ActorId actorId, final Object msg) {

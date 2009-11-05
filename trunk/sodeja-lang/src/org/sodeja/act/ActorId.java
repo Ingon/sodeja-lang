@@ -8,15 +8,20 @@ public class ActorId {
 		this.manager = manager;
 	}
 	
-	public void send(Object msg) {
+	public ActorId send(Object msg) {
 		if(running) {
 			manager.send(this, msg);
+		} else {
+			throw new RuntimeException("Actor is already death");
 		}
+		return this;
 	}
 	
 	public void link(ActorId otherId) {
 		if(running) {
 			manager.link(this, otherId);
+		} else {
+			throw new RuntimeException("Actor is already death");
 		}
 	}
 
