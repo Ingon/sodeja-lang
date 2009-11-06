@@ -6,8 +6,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ActorManager {
+	private final ReadWriteLock lock = new ReentrantReadWriteLock();
 	private final ExecutorService execs;
 	
 	private final Map<ActorId, Actor> actors;
@@ -21,7 +24,9 @@ public class ActorManager {
 	
 	public ActorId spawn(Actor a) {
 		ActorId id = new ActorId(this);
+		lock.writeLock().lock();
 		actors.put(id, a);
+		lock.writeLock().unlock();
 		return id;
 	}
 	
@@ -30,20 +35,20 @@ public class ActorManager {
 	}
 
 	protected void send(final ActorId actorId, final Object msg) {
+		lock.readLock().lock();
+		final Actor act = actors.get(actorId);
+		lock.readLock().unlock();
+		
 		execs.execute(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					boolean keepAlive = actors.get(actorId).receive(actorId, msg); // TODO handle keepAlive
+					boolean keepAlive = act.receive(actorId, msg); 
 					if(! keepAlive) {
 						clearId(actorId);
 					}
 				} catch (Exception e) {
-					if(links.containsKey(actorId)) {
-						for (ActorId lid : links.get(actorId)) {
-							send(lid, e);
-						}
-					}
+					notifyFailure(actorId, e);
 					clearId(actorId);
 				}
 			}
@@ -51,6 +56,7 @@ public class ActorManager {
 	}
 
 	private void clearId(ActorId actorId) {
+		lock.writeLock().lock();
 		actorId.stop();
 		
 		if(links.containsKey(actorId)) {
@@ -65,6 +71,7 @@ public class ActorManager {
 		if(actors.isEmpty()) { // TODO as setter
 			execs.shutdownNow();
 		}
+		lock.writeLock().unlock();
 	}
 	
 	public void link(ActorId actorId, ActorId otherId) {
@@ -73,11 +80,23 @@ public class ActorManager {
 	}
 	
 	private void linkup(ActorId from, ActorId to) {
+		lock.writeLock().lock();
 		Set<ActorId> ids = links.get(from);
 		if(ids == null) {
 			ids = new HashSet<ActorId>();
 			links.put(from, ids);
 		}
 		ids.add(to);
+		lock.writeLock().unlock();
+	}
+
+	private void notifyFailure(final ActorId actorId, Exception e) {
+		lock.readLock().lock();
+		if(links.containsKey(actorId)) {
+			for (ActorId lid : links.get(actorId)) {
+				send(lid, e);
+			}
+		}
+		lock.readLock().unlock();
 	}
 }
