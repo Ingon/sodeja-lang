@@ -1,0 +1,1 @@
+Library that contains a number of extensions and utilities in Java 2 SE code. This includes things like array/collection utils, reflection utils, functors etc.
